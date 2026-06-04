@@ -72,6 +72,8 @@ export const wwebClient = new Client({
             '--disable-dinosaur-easter-egg',
             '--disable-accelerated-2d-canvas',
             '--disable-rtc-smoothness-algorithm',
+            '--dns-over-https=https://cloudflare-dns.com/dns-query',
+            '--ignore-certificate-errors',
         ],
     },
     webVersionCache: {
