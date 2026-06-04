@@ -1,0 +1,9 @@
+{
+    "adminOnly": false,
+    "commandPrefix": "",
+    "clearCommandsHistoryEvery": 1800000,
+    "hotSwappingEnabled": false,
+    "hotSwappingTimer": 2000,
+    "initialCoolDown": 1500,
+    "sendSeen": true
+}
