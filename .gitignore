@@ -1,0 +1,7 @@
+/node_modules
+/cache/*
+/.vscode
+/build
+TODO.md
+package-lock.json
+/json/mendotran-data.json.old
