@@ -69,7 +69,7 @@ export async function readResponse(response: CommandResponse, message: Message):
     } else {
         await sendReaction(response.data.reaction ?? '😵', message);
         if (response.data.content && typeof response.data.content === 'string') {
-            _return = await sendMessage(`⚠️ *Ha ocurrido un error* ⚠️\n\n${response.data.content}`, message.id, msgOptions);
+            _return = await sendMessage(`⚠️ *Algo malio sal* ⚠️\n\n${response.data.content}`, message.id, msgOptions);
         }
 
         botLogError('ERROR RESPONSE:', logString);

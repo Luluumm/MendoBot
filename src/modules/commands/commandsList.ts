@@ -1,6 +1,28 @@
-import { createCommand } from "./commands.js";
+import { CommandError, createCommand } from "./commands.js";
 import { sendResponse, sendErrorResponse } from "./sendResponses.js";
-import { getMetroArrivals, getStopArrivals } from "../mendotran/mendotran.js";
+import { getMetroArrivals, getNextStopArrival, getStopArrivals, normalizeStopCode } from "../mendotran/mendotran.js";
+import { getSavedStopAlias, listSavedStopAliases, saveStopAlias } from "../mendotran/savedStops.js";
+import { getTimeString } from "../../utils/getTimeString.js";
+import { wwebClient } from "../whatsapp/client.js";
+
+function getMessageOwner(message: any): string {
+    return message.fromMe ? message.to : message.from;
+}
+
+function resolveSavedStop(owner: string, stopOrAlias: string): string {
+    return getSavedStopAlias(owner, stopOrAlias) ?? stopOrAlias;
+}
+
+function parseBusAndStop(args: any[]): { bus: string; stop: string } {
+    const bus = args.shift()?.toString();
+    const stop = args.join(" ").trim();
+
+    if (!bus || !bus.match(/^\d+$/) || !stop) {
+        throw new CommandError('Uso: `Recordatorio 352 ESCUELA` o `Recordatorio 352 M4779`');
+    }
+
+    return { bus, stop };
+}
 
 /**
  * Genéricos
@@ -56,7 +78,9 @@ createCommand(['micro', 'm', '🚍'], {
         example: 'M1028',
     })
     .setCallback(async function (args, message) {
-        await getStopArrivals(args.slice(1).join(" "), args[0] ? args[0].toString() : args[0])
+        const owner = getMessageOwner(message);
+        const stop = resolveSavedStop(owner, args.slice(1).join(" "));
+        await getStopArrivals(stop, args[0] ? args[0].toString() : args[0])
         .then(async (arrivals) => {
             await sendResponse(arrivals, message, {
                 reaction: '🚌',
@@ -81,7 +105,8 @@ createCommand(['parada', 'p', '🚏'], {
         example: 'M1012',
     })
     .setCallback(async function (args, message) {
-        await getStopArrivals(args[0])
+        const owner = getMessageOwner(message);
+        await getStopArrivals(resolveSavedStop(owner, args[0]))
             .then(async (arrivals) => {
                 await sendResponse(arrivals, message, {
                     reaction: '🚌',
@@ -90,6 +115,89 @@ createCommand(['parada', 'p', '🚏'], {
                     },
                 });
             });
+    })
+.closeCommand();
+
+// Guardar parada
+createCommand(['guardarparada', 'guardar', 'save'], {
+    info: {
+        name: 'Mendotran - Guardar parada',
+        description: 'Guardar un nombre corto para una parada.',
+    }})
+    .setCallback(async function (args, message) {
+        const alias = args.shift()?.toString().trim();
+        const stop = args.join(" ").trim();
+
+        if (!alias || !stop) {
+            throw new CommandError('Uso: `GuardarParada ESCUELA M4779`');
+        }
+
+        const stopCode = normalizeStopCode(stop);
+        saveStopAlias(getMessageOwner(message), alias, stopCode);
+
+        await sendResponse(`Guardada: *${alias.toUpperCase()}* -> *${stopCode}*\n\nYa puede usar:\n\`Micro 352 ${alias.toUpperCase()}\``, message, {
+            reaction: '✅',
+            messageOptions: { linkPreview: false },
+        });
+    })
+.closeCommand();
+
+// Listar paradas guardadas
+createCommand(['misparadas', 'paradasguardadas', 'savedstops'], {
+    info: {
+        name: 'Mendotran - Mis paradas',
+        description: 'Ver las paradas guardadas.',
+    }})
+    .setCallback(async function (args, message) {
+        const savedStops = listSavedStopAliases(getMessageOwner(message));
+
+        if (savedStops.length === 0) {
+            await sendResponse('No tiene paradas guardadas todavia.\n\nUse: `GuardarParada ESCUELA M4779`', message, {
+                reaction: '📌',
+                messageOptions: { linkPreview: false },
+            });
+            return;
+        }
+
+        const text = savedStops.map((savedStop) => `*${savedStop.alias}* -> ${savedStop.stopCode}`).join('\n');
+        await sendResponse(`📌 *Paradas guardadas*\n\n${text}`, message, {
+            reaction: '📌',
+            messageOptions: { linkPreview: false },
+        });
+    })
+.closeCommand();
+
+// Recordatorio
+createCommand(['recordatorio', 'reminder', 'recordar'], {
+    info: {
+        name: 'Mendotran - Recordatorio',
+        description: 'Enviar un aviso 5 minutos antes de que llegue un micro.',
+    }})
+    .setCallback(async function (args, message) {
+        const { bus, stop } = parseBusAndStop([...args]);
+        const owner = getMessageOwner(message);
+        const stopCodeOrAlias = resolveSavedStop(owner, stop);
+        const nextArrival = await getNextStopArrival(stopCodeOrAlias, bus);
+        const reminderAt = nextArrival.arrival.arrivalTime - (5 * 60 * 1000);
+        const waitTime = reminderAt - Date.now();
+
+        if (waitTime <= 0) {
+            throw new CommandError(`El micro *${bus}* llega a las *${getTimeString(nextArrival.arrival.arrivalTime, true, true)}*, falta menos de 5 minutos.`);
+        }
+
+        if (waitTime > 2147483647) {
+            throw new CommandError('Ese arribo queda demasiado lejos para programar un recordatorio.');
+        }
+
+        setTimeout(() => {
+            const text = `🔔 *Recordatorio Mendotran*\n\nEl micro *${nextArrival.bus}* llega a la parada *${nextArrival.stopCode}* aproximadamente a las *${getTimeString(nextArrival.arrival.arrivalTime, true, true)}*.\n\n📍 ${nextArrival.stopLocation ?? 'Ubicacion sin nombre'}`;
+            wwebClient.sendMessage(owner, text).catch(console.error);
+        }, waitTime);
+
+        await sendResponse(`Te recordaré!!.\n\nLe aviso a las *${getTimeString(reminderAt, true, true)}* para el micro *${bus}* en *${nextArrival.stopCode}*.`, message, {
+            reaction: '⏰',
+            messageOptions: { linkPreview: false },
+        });
     })
 .closeCommand();
 

@@ -54,6 +54,131 @@ function sortByArrivalTime(arrivals: Arrival[]): Arrival[] {
     return arrivals;
 }
 
+export function normalizeStopCode(stopNumber: string): string {
+    if (!stopNumber.match(/^(M|m)+\d+$/i) && isNaN(+stopNumber)) {
+        throw new CommandError(
+            `"*${stopNumber}*" no es una parada. El formato ha de ser similar al siguiente:\n\n` +
+            `\`M1234\` *o* \`1234\``
+        );
+    }
+
+    let normalizedStopNumber = stopNumber.toUpperCase();
+    if (!MENDOTRAN_STOPS_DATABASE[normalizedStopNumber]) {
+        if (MENDOTRAN_STOPS_DATABASE["M" + normalizedStopNumber]) {
+            normalizedStopNumber = "M" + normalizedStopNumber;
+        } else if (MENDOTRAN_STOPS_DATABASE["L" + normalizedStopNumber]) {
+            normalizedStopNumber = "L" + normalizedStopNumber;
+        } else {
+            throw new CommandError(`No existe la parada *${normalizedStopNumber}*.`);
+        }
+    }
+
+    return normalizedStopNumber;
+}
+
+export interface NextArrivalInfo {
+    stopCode: string;
+    stopLocation: string | null;
+    bus: string;
+    serviceName: string;
+    arrival: Arrival;
+}
+
+export async function getNextStopArrival(stopNumber: string, bus: string): Promise<NextArrivalInfo> {
+    if (!MENDOTRAN_BUSES_DATABASE || !MENDOTRAN_STOPS_DATABASE) {
+        throw new CommandError('No se ha podido cargar la base de datos de Mendotran.');
+    }
+
+    const stopCode = normalizeStopCode(stopNumber);
+    botLog(`Buscando proximo arribo de la linea ${bus} en la parada "${stopCode}".`);
+
+    if (!MENDOTRAN_STOPS_DATABASE[stopCode].bus_list.includes(bus)) {
+        throw new CommandError(`El micro *${bus}* no pasa por la parada *${stopCode}*.`);
+    }
+
+    return await fetchStopArrivals(MENDOTRAN_STOPS_DATABASE[stopCode].stop_id).then((arrivalsResponse) => {
+        if (!arrivalsResponse || arrivalsResponse.arrivals.length === 0) {
+            throw new CommandError(`Sin arribos para el micro *${bus}* en la parada *${stopCode}*.`);
+        }
+
+        let serviceID: string | null = null;
+        let serviceName = '';
+        for (const key in arrivalsResponse.references.services) {
+            if (arrivalsResponse.references.services[key].code === bus) {
+                serviceID = key;
+                serviceName = arrivalsResponse.references.services[key].name;
+                break;
+            }
+        }
+
+        if (serviceID === null) {
+            throw new CommandError(`No se encontro informacion del micro *${bus}* para la parada *${stopCode}*.`);
+        }
+
+        const arrivals = sortByArrivalTime(arrivalsResponse.arrivals.filter((busInfo) => {
+            return busInfo.service_id === Number(serviceID);
+        }));
+
+        if (arrivals.length === 0) {
+            throw new CommandError(`Sin arribos para el micro *${bus}* en la parada *${stopCode}*.`);
+        }
+
+        return {
+            stopCode,
+            stopLocation: MENDOTRAN_STOPS_DATABASE[stopCode].location,
+            bus,
+            serviceName,
+            arrival: arrivals[0],
+        };
+    }).catch((error) => {
+        throw handleErrors(error);
+    });
+}
+
+function distanceInMeters(fromLat: number, fromLon: number, toLat: number, toLon: number): number {
+    const earthRadius = 6371000;
+    const dLat = (toLat - fromLat) * Math.PI / 180;
+    const dLon = (toLon - fromLon) * Math.PI / 180;
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(fromLat * Math.PI / 180) * Math.cos(toLat * Math.PI / 180) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    return earthRadius * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+export function getNearestStopsText(latitude: number, longitude: number, limit: number = 15): string {
+    const stopsWithCoordinates = Object.entries(MENDOTRAN_STOPS_DATABASE)
+        .filter(([, stop]) => Array.isArray(stop.coordinates) && stop.coordinates.length >= 2);
+
+    if (stopsWithCoordinates.length === 0) {
+        throw new CommandError(
+            'La base de datos local todavia no tiene coordenadas de paradas.\n\n' +
+            'Ejecute `npm run refresh` para regenerarla con coordenadas y vuelva a enviar su ubicacion.'
+        );
+    }
+
+    const nearestStops = stopsWithCoordinates
+        .map(([code, stop]) => {
+            const coordinates = stop.coordinates as [number, number];
+            return {
+                code,
+                stop,
+                distance: distanceInMeters(latitude, longitude, coordinates[1], coordinates[0]),
+            };
+        })
+        .sort((a, b) => a.distance - b.distance)
+        .slice(0, limit);
+
+    let text = `*${nearestStops.length} paradas mas cercanas*\n\n`;
+    nearestStops.forEach((nearestStop, index) => {
+        const buses = [...new Set(nearestStop.stop.bus_list)].join(', ') || 'Sin micros cargados';
+        text += `${index + 1}. *${nearestStop.code}* - ${Math.round(nearestStop.distance)} m\n`;
+        text += `   ${nearestStop.stop.location ?? 'Ubicacion sin nombre'}\n`;
+        text += `   Micros: ${buses}\n\n`;
+    });
+
+    return text.trim();
+}
+
 /**
  * La función recibe el objeto con la información de los arribos
  * y formatea las mismas en una cadena de texto que luego será

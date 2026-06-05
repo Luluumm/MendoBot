@@ -29,7 +29,7 @@ export async function getMendotranDatabase(): Promise<void> {
                 stopList[stopInfo.code] = {
                     "stop_id": stopInfo.stop_id,
                     "location": stopInfo.location,
-                    //"coordinates": item.coordinates,
+                    "coordinates": stopInfo.coordinates,
                     "bus_list": [],
                 };
 
@@ -130,19 +130,17 @@ export async function getMendotranDatabase(): Promise<void> {
     botLogOk("La base de datos fue generada exitosamente.")
 }
 
-async function guardarArchivos(path: string, nombreArchivo: string, data: object, createBackup: boolean = true) {
-    // Verificar si es la primera vez que se guarda el archivo, de lo contrario hacer un back-up de la versión anterior al mismo.
-    if (createBackup === true && fs.existsSync(`${path}/${nombreArchivo}`)) {
-        fs.copyFile(`${path}/${nombreArchivo}`, `${path}/${nombreArchivo}.old`, (error) => {
-            if (error) throw new Error(`Error al crear una copia del archivo "${nombreArchivo}" ya existente.`, error);
+function guardarArchivos(path: string, nombreArchivo: string, data: object, createBackup: boolean = true) {
+    const filePath = `${path}/${nombreArchivo}`;
+    const tmpPath = `${filePath}.tmp`;
 
-            botLog(`Se copió el archivo "${nombreArchivo}" existente a "${nombreArchivo}.old".`)
-        });
+    // Verificar si es la primera vez que se guarda el archivo, de lo contrario hacer un back-up de la version anterior al mismo.
+    if (createBackup === true && fs.existsSync(filePath) && fs.statSync(filePath).size > 0) {
+        fs.copyFileSync(filePath, `${filePath}.old`);
+        botLog(`Se copio el archivo "${nombreArchivo}" existente a "${nombreArchivo}.old".`);
     }
 
-    return fs.writeFile(`${path}/${nombreArchivo}`, JSON.stringify(data), (error) => {
-        if (error) throw new Error(`Ocurrió un error al guardar el archivo "${path}/${nombreArchivo}".`, error);
-
-        botLogOk(`Archivo "${path}/${nombreArchivo}" creado con éxito.`)
-    });
+    fs.writeFileSync(tmpPath, JSON.stringify(data));
+    fs.renameSync(tmpPath, filePath);
+    botLogOk(`Archivo "${filePath}" creado con exito.`);
 }

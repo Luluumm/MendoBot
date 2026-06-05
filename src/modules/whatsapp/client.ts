@@ -190,8 +190,8 @@ wwebClient.on('ready', () => {
         // Ignore status messages and previous messages
         if (message.isStatus || (message.timestamp * 1000 < startTime)) { return; }
 
-        // Setting: Ignore "media" messages
-        if (whatsappSettings.ignoreNonTextMessages === true && message.type !== MessageTypes.TEXT) { return; }
+        // Setting: Ignore "media" messages, but keep shared locations for nearby stop lookup.
+        if (whatsappSettings.ignoreNonTextMessages === true && message.type !== MessageTypes.TEXT && message.type !== MessageTypes.LOCATION) { return; }
 
         if (message.type === MessageTypes.E2E_NOTIFICATION || message.type === MessageTypes.NOTIFICATION_TEMPLATE ||
             message.type === MessageTypes.NOTIFICATION || message.type === MessageTypes.GROUP_NOTIFICATION ||
@@ -208,6 +208,26 @@ wwebClient.on('ready', () => {
         
         // Setting: Ignore commands not coming from admin
         if (commandsSettings.adminOnly && !message.fromMe) { return; }
+
+        if (message.type === MessageTypes.LOCATION && message.location) {
+            try {
+                const { getNearestStopsText } = require('../mendotran/mendotran.js');
+                const nearestStopsText = getNearestStopsText(Number(message.location.latitude), Number(message.location.longitude), 15);
+                await wwebClient.sendMessage(from, nearestStopsText, {
+                    quotedMessageId: message.id._serialized,
+                    linkPreview: false,
+                });
+            } catch (error) {
+                const errorMessage = typeof error === 'object' && error !== null && 'message' in error
+                    ? String(error.message)
+                    : 'No se pudo procesar la ubicacion.';
+                await wwebClient.sendMessage(from, `⚠️ ${errorMessage}`, {
+                    quotedMessageId: message.id._serialized,
+                    linkPreview: false,
+                });
+            }
+            return;
+        }
 
         if (message.body.indexOf(commandsSettings.commandPrefix) === 0 && typeof message.body === 'string' && message.type === MessageTypes.TEXT) {
             commandExecution(message);

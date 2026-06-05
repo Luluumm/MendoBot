@@ -370,7 +370,7 @@ export function commandExample(command: Command): string | null {
                 alias = capitalizedCase(command.alias[0]);
             }
             
-            text += `\n\n✍️ *Sintaxis del comando* ✍️\n\n`;
+            text += `\n\n✍️ *Como mandar el mensaje* ✍️\n\n`;
             text += commandsPrefix + alias;
 
             let example = '\n\n📥 *Ejemplo* 📥\n\n' + commandsPrefix + alias;
@@ -427,31 +427,34 @@ createCommand(['ayuda', 'help', '?', '❓'], {
                         messageOptions: { linkPreview: false },
                     });
                 } else {
-                    await sendErrorResponse(`No exite información sobre el comando *${args[0]}*.`, message);
+                    await sendErrorResponse(`No existe ese comando *${args[0]}*.`, message);
                 }
             } else {
                 await sendErrorResponse(`El comando *${args[0]}* no existe.`, message);
             }
         } else {
                 const ayuda = '📚 *¿Cómo usar el bot?* 📚\n\n' +
-                'Para usar el bot, solo tiene que escribir un mensaje que comience con el nombre del comando. ' +
-                'Luego, añada los detalles necesarios, separados por espacios.\n\n' +
+                'Para usar el bot, escribí un mensaje que empiece con el nombre de un comando. ' +
+                'Luego, añadí los detalles necesarios, separados por espacios.\n\n' +
 
-                'Por ejemplo, si quiere saber los horarios de la parada *M1040*, escriba:\n\n' +
+                'Por ejemplo, si querés saber los horarios de la parada *M1040*, enviá:\n\n' +
                 
                 '`Parada M1040`\n\n' +
 
-                'Si quiere saber *específicamente* sobre el micro *120* en la parada *M1040*, escriba:\n\n' +
+                'Si querés saber *específicamente* sobre el micro *120* en la parada *M1040*, escriba:\n\n' +
 
                 '`Micro 120 M1040`\n\n' +
 
-                '📒 *Lista de comandos* 📒\n\n' +
+                '📒 *Comandos* 📒\n\n' +
 
                 '🚏 *Parada* `N° de parada`\n' +
                 '🚍 *Micro* `Línea` `Nº de parada`\n' +
+                '📌 *GuardarParada* `Nombre` `Nº de parada`\n' +
+                '⏰ *Recordatorio* `Línea` `Nº de parada o nombre guardado`\n' +
+                '📌 *MisParadas*\n' +
                 '🚊 *Metro* `Nombre de la estación`\n\n' +
                 
-                'Si desea saber más información sobre un comando, conocer más usos, utilice:\n' +
+                'Para ver más info, mandá:\n' +
                 '❓ *Ayuda* `Nombre del comando`';
             await sendResponse(ayuda, message, {
                 reaction: '🤓',

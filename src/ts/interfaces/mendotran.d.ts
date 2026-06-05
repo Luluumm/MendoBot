@@ -3,6 +3,7 @@ import { MetroDirection, BusColor } from "../types/mendotran.d.ts";
 export interface StopData {
     stop_id: number;
     location: string;
+    coordinates?: [number, number]; // [longitude, latitude]
     bus_list: string[];
 }
 
