@@ -52,7 +52,7 @@ export const wwebClient = new Client({
     }),
     puppeteer: {
         executablePath: getBrowserExecutablePath(),
-        headless: true,
+        headless: false,
         args: [
             '--no-sandbox',
             '--disable-gpu',
@@ -73,6 +73,8 @@ export const wwebClient = new Client({
             '--disable-accelerated-2d-canvas',
             '--disable-rtc-smoothness-algorithm',
             '--dns-over-https=https://cloudflare-dns.com/dns-query',
+            '--ignore-certificate-errors',
+            '--host-resolver-rules=MAP web.whatsapp.com 172.31.255.1',
             '--ignore-certificate-errors',
         ],
     },

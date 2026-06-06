@@ -6,7 +6,7 @@ export const ACTUAL_BBDD_VERSION: number = 2;
 // ✅ ADD THESE 2 LINES AT THE TOP (before everything else)
 import dns from 'node:dns';
 dns.setServers(['1.1.1.1', '1.0.0.1']);
-
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 // ... rest of file unchanged
 import { botLogError } from './utils/botLog.js'
