@@ -139,7 +139,7 @@ wwebClient.on('loading_screen', (percent: number) => {
         '                #######################\n' +
         '               ########   ##########\n\n' +
         `                        Version: ${packageInfo.version}\n`+
-        `                  whatsapp-web.js: 1.34.4\n`
+        `                  MendoBot by MerK2: 2.7.4\n`
     );
     console.log(` ${loading_bar} [ ${percent} % ]\n`);
 });
