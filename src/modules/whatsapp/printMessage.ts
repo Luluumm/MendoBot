@@ -50,7 +50,7 @@ export async function printMessage(message: Message, from: string, edited?: bool
                 messageMedia = '📄 Documento 📄';
                 break;
             case MessageTypes.LOCATION:
-                // Prevent raw location data from being printed out
+                
                 message.body = '';
                 // @ts-ignore
                 if (message.location.description.length) {
