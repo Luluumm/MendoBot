@@ -18,7 +18,7 @@ function parseBusAndStop(args: any[]): { bus: string; stop: string } {
     const stop = args.join(" ").trim();
 
     if (!bus || !bus.match(/^\d+$/) || !stop) {
-        throw new CommandError('Uso: `Recordatorio 352 ESCUELA` o `Recordatorio 352 M4779`');
+        throw new CommandError('Uso: `Recordatorio n°MICRO n°PARADA`');
     }
 
     return { bus, stop };
@@ -33,26 +33,26 @@ createCommand(['ping'], {
         name: 'Ping',
         description: 'Ping-pong! 🏓',
     }
-    })
+})
     .setCallback(async (args, message) => {
         await sendResponse('Pong!', message, {
             reaction: '🏓',
         });
     })
-.closeCommand();
+    .closeCommand();
 
 createCommand(['pong'], {
     info: {
         name: 'Pong',
         description: 'Ping-pong! 🏓',
     }
-    })
+})
     .setCallback(async (args, message) => {
         await sendResponse('Ping!', message, {
             reaction: '🏓',
         });
     })
-.closeCommand();
+    .closeCommand();
 
 /**
  * Mendotran
@@ -66,7 +66,8 @@ createCommand(['micro', 'm', '🚍'], {
     info: {
         name: 'Mendotran - Micro',
         description: 'Obtener los horarios de un colectivo en una parada.'
-    }})
+    }
+})
     .addParameter('number', {
         name: 'Línea',
         description: 'La línea de colectivo de la cual desea saber sus horarios.',
@@ -81,14 +82,14 @@ createCommand(['micro', 'm', '🚍'], {
         const owner = getMessageOwner(message);
         const stop = resolveSavedStop(owner, args.slice(1).join(" "));
         await getStopArrivals(stop, args[0] ? args[0].toString() : args[0])
-        .then(async (arrivals) => {
-            await sendResponse(arrivals, message, {
-                reaction: '🚌',
-                messageOptions: { linkPreview: false },
+            .then(async (arrivals) => {
+                await sendResponse(arrivals, message, {
+                    reaction: '🚌',
+                    messageOptions: { linkPreview: false },
+                });
             });
-        });
     })
-.closeCommand();
+    .closeCommand();
 
 // Parada 
 createCommand(['parada', 'p', '🚏'], {
@@ -98,7 +99,8 @@ createCommand(['parada', 'p', '🚏'], {
     info: {
         name: 'Mendotran - Parada',
         description: 'Obtener los horarios de una parada de colectivos.',
-    }})
+    }
+})
     .addParameter('string', {
         name: 'Nº de parada',
         description: 'El código de parada de la cual desea saber sus horarios.',
@@ -116,43 +118,52 @@ createCommand(['parada', 'p', '🚏'], {
                 });
             });
     })
-.closeCommand();
+    .closeCommand();
 
 // Guardar parada
 createCommand(['guardarparada', 'guardar', 'save'], {
+    options: {
+        disableQuotationMarks: true,
+    },
     info: {
         name: 'Mendotran - Guardar parada',
         description: 'Guardar un nombre corto para una parada.',
-    }})
+    }
+})
     .setCallback(async function (args, message) {
         const alias = args.shift()?.toString().trim();
         const stop = args.join(" ").trim();
 
         if (!alias || !stop) {
-            throw new CommandError('Uso: `GuardarParada ESCUELA M4779`');
+            throw new CommandError('Uso: `GuardarParada NOMBRE n°PARADA`');
         }
 
         const stopCode = normalizeStopCode(stop);
         saveStopAlias(getMessageOwner(message), alias, stopCode);
 
-        await sendResponse(`Guardada: *${alias.toUpperCase()}* -> *${stopCode}*\n\nYa puede usar:\n\`Micro 352 ${alias.toUpperCase()}\``, message, {
+        await sendResponse(`Guardada: *${alias.toUpperCase()}* -> *${stopCode}*\n\nYa puede usar:\n\`n°MICRO ${alias.toUpperCase()}\``, message, {
             reaction: '✅',
             messageOptions: { linkPreview: false },
         });
     })
-.closeCommand();
+    .closeCommand();
 
 // Listar paradas guardadas
 createCommand(['misparadas', 'paradasguardadas', 'savedstops'], {
+    options: {
+        disableQuotationMarks: true,
+    },
+
     info: {
         name: 'Mendotran - Mis paradas',
         description: 'Ver las paradas guardadas.',
-    }})
+    }
+})
     .setCallback(async function (args, message) {
         const savedStops = listSavedStopAliases(getMessageOwner(message));
 
         if (savedStops.length === 0) {
-            await sendResponse('No tiene paradas guardadas todavia.\n\nUse: `GuardarParada ESCUELA M4779`', message, {
+            await sendResponse('No tiene paradas guardadas todavia.\n\nUse: `GuardarParada NOMBRE n°PARADA`', message, {
                 reaction: '📌',
                 messageOptions: { linkPreview: false },
             });
@@ -165,14 +176,15 @@ createCommand(['misparadas', 'paradasguardadas', 'savedstops'], {
             messageOptions: { linkPreview: false },
         });
     })
-.closeCommand();
+    .closeCommand();
 
 // Recordatorio
 createCommand(['recordatorio', 'reminder', 'recordar'], {
     info: {
         name: 'Mendotran - Recordatorio',
         description: 'Enviar un aviso 5 minutos antes de que llegue un micro.',
-    }})
+    }
+})
     .setCallback(async function (args, message) {
         const { bus, stop } = parseBusAndStop([...args]);
         const owner = getMessageOwner(message);
@@ -199,7 +211,7 @@ createCommand(['recordatorio', 'reminder', 'recordar'], {
             messageOptions: { linkPreview: false },
         });
     })
-.closeCommand();
+    .closeCommand();
 
 // Metrotranvia
 createCommand(['metro', 'metrotranvia', 'metrotranvía', 'estacion', 'estación', '🚊'], {
@@ -209,17 +221,18 @@ createCommand(['metro', 'metrotranvia', 'metrotranvía', 'estacion', 'estación'
     info: {
         name: 'Mendotran - Metrotranvía',
         description: 'Obtener los horarios de una estación de metrotranvía.',
-    }})
+    }
+})
     .addParameter('string', {
-        name: 'Nombre de la estación', 
+        name: 'Nombre de la estación',
         example: 'Piedra buena'
     })
     .setCallback(async (args, message) => {
         await getMetroArrivals(args[0])
-            .then(async (arrivals)=>{
-                await sendResponse(arrivals, message, { 
+            .then(async (arrivals) => {
+                await sendResponse(arrivals, message, {
                     reaction: '🚋',
                 });
             });
     })
-.closeCommand();
+    .closeCommand();
