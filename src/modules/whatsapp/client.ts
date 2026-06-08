@@ -54,6 +54,9 @@ dns.setServers([
     '1.0.0.1'
 ]);
 
+const executablePath = getBrowserExecutablePath();
+console.log('Using browser:', executablePath);
+
 export const wwebClient = new Client({
     authStrategy: new LocalAuth({
         dataPath: `${whatsappSettings.wwebjsCache}/.wwebjs_auth`,
