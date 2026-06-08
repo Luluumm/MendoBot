@@ -59,8 +59,8 @@ createCommand(['pong'], {
  */
 
 // Micro
-createCommand(['micro', 'm', '🚍'], {
-    options: {
+createCommand(['micro', 'bus', 'm', '🚍'], {
+    options: {   
         disableQuotationMarks: true,
     },
     info: {
@@ -92,7 +92,7 @@ createCommand(['micro', 'm', '🚍'], {
     .closeCommand();
 
 // Parada 
-createCommand(['parada', 'p', '🚏'], {
+createCommand(['stop', 'parada', 'p', '🚏'], {
     options: {
         disableQuotationMarks: true,
     },
@@ -149,7 +149,7 @@ createCommand(['guardarparada', 'guardar', 'save'], {
     .closeCommand();
 
 // Listar paradas guardadas
-createCommand(['misparadas', 'paradasguardadas', 'savedstops'], {
+createCommand(['mystops', 'misparadas', 'paradasguardadas', 'savedstops'], {
     options: {
         disableQuotationMarks: true,
     },
@@ -179,7 +179,7 @@ createCommand(['misparadas', 'paradasguardadas', 'savedstops'], {
     .closeCommand();
 
 // Recordatorio
-createCommand(['recordatorio', 'reminder', 'recordar'], {
+createCommand(['recordatorio', 'reminder', 'recordar','r'], {
     info: {
         name: 'Mendotran - Recordatorio',
         description: 'Enviar un aviso 5 minutos antes de que llegue un micro.',
