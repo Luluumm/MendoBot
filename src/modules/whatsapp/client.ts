@@ -7,6 +7,9 @@ import { botLog, botLogError, botLogOk } from '../../utils/botLog.js';
 import { whatsappSettings, commandsSettings, packageInfo } from "../../index.js";
 import { printMessage } from './printMessage.js';
 
+import dns from 'dns';
+
+
 const chromium: { path?: string } = require('chromium');
 
 function getPuppeteerCachedChromePath(): string | undefined {
@@ -46,13 +49,18 @@ function getBrowserExecutablePath(): string {
     return browserPath;
 }
 
+dns.setServers([
+    '1.1.1.1',
+    '1.0.0.1'
+]);
+
 export const wwebClient = new Client({
     authStrategy: new LocalAuth({
         dataPath: `${whatsappSettings.wwebjsCache}/.wwebjs_auth`,
     }),
     puppeteer: {
         executablePath: getBrowserExecutablePath(),
-        headless: false,
+        headless: true,
         args: [
             '--no-sandbox',
             '--disable-gpu',
@@ -74,7 +82,7 @@ export const wwebClient = new Client({
             '--disable-rtc-smoothness-algorithm',
             '--dns-over-https=https://cloudflare-dns.com/dns-query',
             '--ignore-certificate-errors',
-            '--host-resolver-rules=MAP web.whatsapp.com 172.31.255.1',
+            '--host-resolver-rules=MAP web.whatsapp.com 31.13.94.52',
             '--ignore-certificate-errors',
         ],
     },
@@ -83,6 +91,8 @@ export const wwebClient = new Client({
         path: `${whatsappSettings.wwebjsCache}/.wwebjs_cache`,
     },
 });
+
+
 
 let clientStarted: boolean = false;
 
