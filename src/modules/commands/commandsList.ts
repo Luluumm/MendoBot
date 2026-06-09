@@ -163,7 +163,7 @@ createCommand(['mystops', 'misparadas', 'paradasguardadas', 'savedstops'], {
             reaction: '💾',
             messageOptions: { linkPreview: false },
         });
-    })
+    })    
     .closeCommand();
 
 // Recordatorio
@@ -194,7 +194,7 @@ createCommand(['recordatorio', 'reminder', 'recordar', 'r'], {
             wwebClient.sendMessage(owner, text).catch(console.error);
         }, waitTime);
 
-        await sendResponse(`Te recordaré!!.\n\n> Le aviso a las *${getTimeString(reminderAt, true, true)}* para el micro *${bus}* en *${nextArrival.stopCode}*.`, message, {
+        await sendResponse(`⏰ Te recordaré!!⏰.\n\n> Te enviaré un mensaje a las *${getTimeString(reminderAt, true, true)}* para el micro *${bus}* en *${nextArrival.stopCode}*.`, message, {
             reaction: '⏰',
             messageOptions: { linkPreview: false },
         });
