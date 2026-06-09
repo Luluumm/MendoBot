@@ -223,36 +223,3 @@ createCommand(['metro', 'metrotranvia', 'metrotranvía', 'estacion', 'estación'
             });
     })
     .closeCommand();
-
-createCommand(['comandos', 'commands', 'ayuda', 'help'], {
-    options: {
-        disableQuotationMarks: true,
-    },
-    info: {
-        name: 'Mendotran - Comandos',
-        description: 'Lista de comandos disponibles.',
-    }
-})
-    .setCallback(async (_args, message) => {
-        const commandsList = [
-            { aliases: ['ping'], description: 'Ping-pong! 🏓' },
-            { aliases: ['pong'], description: 'Ping-pong! 🏓' },
-            { aliases: ['micro', 'bus', 'm', '🚍'], description: 'Horarios de un colectivo en una parada.' },
-            { aliases: ['stop', 'parada', 'p', '🚏'], description: 'Horarios de una parada de colectivos.' },
-            { aliases: ['guardarparada', 'guardar', 'save'], description: 'Guardar un nombre corto para una parada.' },
-            { aliases: ['mystops', 'misparadas', 'paradasguardadas', 'savedstops'], description: 'Ver las paradas guardadas.' },
-            { aliases: ['recordatorio', 'reminder', 'recordar', 'r'], description: 'Aviso 5 minutos antes de que llegue un micro.' },
-            { aliases: ['metro', 'metrotranvia', 'metrotranvía', 'estacion', 'estación', '🚊'], description: 'Horarios de una estación de metrotranvía.' },
-            { aliases: ['comandos', 'commands', 'ayuda', 'help'], description: 'Lista de comandos disponibles.' },
-        ];
-
-        const text = commandsList
-            .map((cmd) => `> *${cmd.aliases.join(' | ')}*\n> ${cmd.description}`)
-            .join('\n\n');
-
-        await sendResponse(`📋 *Comandos disponibles*\n\n${text}`, message, {
-            reaction: '📋',
-            messageOptions: { linkPreview: false },
-        });
-    })
-    .closeCommand();

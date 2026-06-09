@@ -395,7 +395,7 @@ export function commandExample(command: Command): string | null {
 }
 
 // Help command
-createCommand(['ayuda', 'help', '?', '❓'], {
+createCommand(['comandos','commands','ayuda', 'help', '?', '❓'], {
     info: {
         name: 'Ayuda',   
         description: 'Obtener información sobre el uso de un comando.',
@@ -425,7 +425,7 @@ createCommand(['ayuda', 'help', '?', '❓'], {
                 
                 '`Parada M1040`\n\n' +
 
-                'Si querés saber *específicamente* sobre el micro *120* en la parada *M1040*, escriba:\n\n' +
+                'Si querés saber *específicamente* sobre el micro *120* en la parada *M1040*, escribi:\n\n' +
 
                 '`Micro 120 M1040`\n\n' +
 
@@ -433,15 +433,15 @@ createCommand(['ayuda', 'help', '?', '❓'], {
 
                 '🚏 *Parada* `N° de parada`\n' +
                 '🚍 *Micro* `Línea` `Nº de parada`\n' +
-                '📌 *GuardarParada* `Nombre` `Nº de parada`\n' +
+                '🛟 *GuardarParada* `Nombre` `Nº de parada`\n' +
                 '⏰ *Recordatorio* `Línea` `Nº de parada o nombre guardado`\n' +
-                '📌 *MisParadas*\n' +
+                '💾 *MisParadas*\n' +
                 '🚊 *Metro* `Nombre de la estación`\n\n' +
                 
                 'Para ver más info, mandá:\n' +
                 '❓ *Ayuda* `Nombre del comando`';
             await sendResponse(ayuda, message, {
-                reaction: '🤓',
+                reaction: '‼️',
                 messageOptions: { linkPreview: false },
             });
         }
