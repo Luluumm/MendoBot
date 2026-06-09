@@ -25,7 +25,7 @@ async function sendReplyMessage(content: MessageContent, message: Message, optio
 }
 
 async function sendReaction(reaction: string, message: Message): Promise<Message> {
-    await message.react(''); // Clear reaction
+    await message.react('');
     await message.react(reaction);
     return message;
 }

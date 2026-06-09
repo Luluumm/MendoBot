@@ -151,7 +151,7 @@ wwebClient.on('loading_screen', (percent: number) => {
         '                ###                  #####\n' +
         '                #######################\n' +
         '               ########   ##########\n\n' +
-        `                        Release: ${packageInfo.version}\n`+
+        `                        Release: ${packageInfo.version}\n` +
         `                  MendoBot by MerK2: 2.7.4\n`
     );
     console.log(` ${loading_bar} [ ${percent} % ]\n`);
@@ -218,9 +218,9 @@ wwebClient.on('ready', () => {
         if (whatsappSettings.showMessagesInTheTerminal) { printMessage(message, from); }
 
         /* Commands */
-        
+
         if (commandExecution === undefined) { return; }
-        
+
         // Setting: Ignore commands not coming from admin
         if (commandsSettings.adminOnly && !message.fromMe) { return; }
 

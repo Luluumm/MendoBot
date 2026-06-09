@@ -7,20 +7,13 @@ import { ACTUAL_BBDD_VERSION } from '../../index.js';
 
 export async function getMendotranDatabase(): Promise<void> {
     botLog('Generando la base de datos de Mendotran.');
-    //
-    // Extraemos la lista de paradas de la base de datos.
-    //
     const stopListJSON = await fetchAllStopsInfo();
     const stopList: MendotranStopsData = {};
-    // Este mapa lo usaremos como una especie de diccionario, donde el "key" será el ID de la parada y el "value" el código.
-    // Ejemplo: 12345: "M1000"
     const stopIDDictionary = new Map();
 
     if (stopListJSON.search && stopListJSON.search.length > 0) {
         for(const stopInfo of stopListJSON.search) {
-            // Verificamos estar recibiendo los datos esperados, esto es útil por si en un futuro Mendotran decide cambiar los datos de la base de datos.
             if (stopInfo.stop_id !== undefined && stopInfo.code !== undefined && stopInfo.location !== undefined && stopInfo.coordinates !== undefined) {
-                // Ignorar repetidos
                 if (stopList[`${stopInfo.code}`]) {
                     botLog(`La parada "${stopInfo.code}" está repetida, se ignorará.`);
                     continue;
@@ -42,14 +35,10 @@ export async function getMendotranDatabase(): Promise<void> {
         throw new Error("No se pudo obtener la lista de paradas de colectivos del servidor de Mendotran.");
     }
 
-    // Si de algún modo la lista de paradas está vacía, tirar error.
     if (Object.keys(stopList).length === 0) {
         throw new Error("Ocurrió un error al intentar generar la lista de paradas de colectivos.");
     }
 
-    //
-    // Extraemos la lista de colectivos de la base de datos.
-    //
     const busesListJSON = await fetchAllBusesInfo();
     const busesList: MendotranBusesData = {};
 
@@ -62,9 +51,7 @@ export async function getMendotranDatabase(): Promise<void> {
                 }
 
                 busesList[`${busInfo.code}`] = {
-                    // "group_id": busInfo.group_id,
                     "service_id": busInfo.service_id,
-                    // "name": busInfo.name,
                     "color": getBusColor(busInfo.code),
                 };
             } else {
@@ -75,14 +62,10 @@ export async function getMendotranDatabase(): Promise<void> {
         throw new Error("No se pudo obtener la lista de colectivos del servidor de Mendotran.");
     }
 
-    // Si de algún modo la lista de colectivos está vacía, tirar error.
     if (Object.keys(stopList).length === 0) {
         throw new Error("Ocurrió un error al intentar generar la lista de colectivos.");
     }
 
-    //
-    // Añadimos a las paradas los micros que pasan por ella.
-    //
     let busesAñadidos: boolean = false;
 
     for (const linea in busesList) {
@@ -91,12 +74,10 @@ export async function getMendotranDatabase(): Promise<void> {
         if (busInfoJSON.service != undefined && busInfoJSON.service.stops != undefined && busInfoJSON.service.stops.length > 0) {
             botLog(`Añadido paradas del micro "${linea}".`)
             for (const stop_id of busInfoJSON.service.stops) {
-                // Verificamos que exista la parada en nuestra base de datos local.
                 let stop: StopData;
                 if (stopIDDictionary.has(stop_id) && (stop = stopList[stopIDDictionary.get(stop_id)]) != undefined) {
                     stop.bus_list.push(linea);
 
-                    //botLogOk(`Añadido el micro "${linea}" a la parada "${stopIDDictionary.get(stop_id)}".`);
                     busesAñadidos = true;
                 } else {
                     botLogError("Se intentó agregar un bus a la lista de buses de una parada, pero ésta no existe en la base de datos local.\n"
@@ -113,9 +94,7 @@ export async function getMendotranDatabase(): Promise<void> {
         throw new Error("No se pudieron añadir los colectivos a la lista de colectivos que pasan por cada parada.");
     }
 
-    // Escribir archivo
     try {
-        // Si no exite la carpeta la generamos
         if (!fs.existsSync('./json')) {
             fs.mkdirSync('./json', { recursive: true });
         }
@@ -126,7 +105,6 @@ export async function getMendotranDatabase(): Promise<void> {
     } catch(error) {
         throw new Error("Error al guardar la base de datos en archivos JSON. " + error);
     }
-    // TODO: Habría que esperar a que terminen de guardarse los tres archivos para mandar este mensaje y finalizar la función.
     botLogOk("La base de datos fue generada exitosamente.")
 }
 
@@ -134,7 +112,6 @@ function guardarArchivos(path: string, nombreArchivo: string, data: object, crea
     const filePath = `${path}/${nombreArchivo}`;
     const tmpPath = `${filePath}.tmp`;
 
-    // Verificar si es la primera vez que se guarda el archivo, de lo contrario hacer un back-up de la version anterior al mismo.
     if (createBackup === true && fs.existsSync(filePath) && fs.statSync(filePath).size > 0) {
         fs.copyFileSync(filePath, `${filePath}.old`);
         botLog(`Se copio el archivo "${nombreArchivo}" existente a "${nombreArchivo}.old".`);

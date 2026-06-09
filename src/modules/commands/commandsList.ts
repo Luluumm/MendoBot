@@ -24,10 +24,6 @@ function parseBusAndStop(args: any[]): { bus: string; stop: string } {
     return { bus, stop };
 }
 
-/**
- * Genéricos
- */
-
 createCommand(['ping'], {
     info: {
         name: 'Ping',
@@ -54,13 +50,8 @@ createCommand(['pong'], {
     })
     .closeCommand();
 
-/**
- * Mendotran
- */
-
-// Micro
 createCommand(['micro', 'bus', 'm', '🚍'], {
-    options: {   
+    options: {
         disableQuotationMarks: true,
     },
     info: {
@@ -91,7 +82,6 @@ createCommand(['micro', 'bus', 'm', '🚍'], {
     })
     .closeCommand();
 
-// Parada 
 createCommand(['stop', 'parada', 'p', '🚏'], {
     options: {
         disableQuotationMarks: true,
@@ -120,7 +110,6 @@ createCommand(['stop', 'parada', 'p', '🚏'], {
     })
     .closeCommand();
 
-// Guardar parada
 createCommand(['guardarparada', 'guardar', 'save'], {
     options: {
         disableQuotationMarks: true,
@@ -148,7 +137,6 @@ createCommand(['guardarparada', 'guardar', 'save'], {
     })
     .closeCommand();
 
-// Listar paradas guardadas
 createCommand(['mystops', 'misparadas', 'paradasguardadas', 'savedstops'], {
     options: {
         disableQuotationMarks: true,
@@ -170,7 +158,7 @@ createCommand(['mystops', 'misparadas', 'paradasguardadas', 'savedstops'], {
             return;
         }
 
-        const text = savedStops.map((savedStop) => `🚏 > *${savedStop.alias}* ➡️ ${savedStop.stopCode}`).join('\n');
+        const text = savedStops.map((savedStop) => `> 🚏 *${savedStop.alias}* ➡️ ${savedStop.stopCode}`).join('\n');
         await sendResponse(`💾 *Paradas guardadas* 💾\n\n${text}`, message, {
             reaction: '💾',
             messageOptions: { linkPreview: false },
@@ -179,7 +167,7 @@ createCommand(['mystops', 'misparadas', 'paradasguardadas', 'savedstops'], {
     .closeCommand();
 
 // Recordatorio
-createCommand(['recordatorio', 'reminder', 'recordar','r'], {
+createCommand(['recordatorio', 'reminder', 'recordar', 'r'], {
     info: {
         name: 'Mendotran - Recordatorio',
         description: 'Enviar un aviso 5 minutos antes de que llegue un micro.',
@@ -213,7 +201,6 @@ createCommand(['recordatorio', 'reminder', 'recordar','r'], {
     })
     .closeCommand();
 
-// Metrotranvia
 createCommand(['metro', 'metrotranvia', 'metrotranvía', 'estacion', 'estación', '🚊'], {
     options: {
         disableQuotationMarks: true,

@@ -8,7 +8,6 @@ import { commandsPrefix } from "../../index.js";
 export async function sendResponse(content: MessageContent | null, message: Message, options?: CommandResponseOptions): Promise<Message | void> {
     let responseType: CommandResponseType = CommandResponseType.UNKNOWN;
     if (content) {
-        // Avoid commands that send other commands, as this can generate an infinite loop of sending messages
         if (typeof content === 'string' && content.indexOf(commandsPrefix) === 0) {
             const strHead: string = content.split(" ")[0].slice(commandsPrefix.length);
             if (commandExists(strHead)) {
@@ -20,7 +19,6 @@ export async function sendResponse(content: MessageContent | null, message: Mess
             }
         }
 
-        // Type of response
         if (options && options.asReply === true) {
             responseType = CommandResponseType.REPLY_MESSAGE;
         } else {

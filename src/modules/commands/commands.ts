@@ -30,7 +30,6 @@ class CommandsManager {
         let collisions = 0;
         let filterCommandAlias = [...command.alias];
 
-        // Check that aliases are not in use
         for (let i = 0; i < command.alias.length; i++) {
             command.alias[i] = command.alias[i].toLowerCase();
             if (this.alias.has(command.alias[i])) {
@@ -169,7 +168,6 @@ const closeCommand = (command: Command) => () => {
         for (let i = 0; i < command.parameters.length; i++) {            
             if (command.parameters[i].type === 'string') { stringParamCount++; }
 
-            // Check if optional parameters are at the end of the command
             if (command.parameters[i].isOptional === true) {
                 optionalValueDetected = true;
             } else if (optionalValueDetected === true) {
@@ -194,15 +192,12 @@ const closeCommand = (command: Command) => () => {
 
 function argumentType(arg: any): 'string' | 'boolean' | 'number' | null {
     if (typeof arg === 'string') {
-        // Boolean
         if (arg.match(/^si$|^no$|^true$|^false$/i)) {
             return 'boolean';
         }
-        // Number
         if (arg.match(/^[0-9]+$|^-+[0-9]+$/)){
             return 'number';
         }
-        // String
         return 'string';
     } else if (typeof arg === 'number') {
         return 'number';
@@ -215,10 +210,8 @@ function argumentType(arg: any): 'string' | 'boolean' | 'number' | null {
 function verifyArgs(args: any[], command: Command): boolean {
     if (!command.parameters) { return false; }
     
-    // Ignore excess arguments, to avoid errors when checking
     const argsLen: number = args.length > command.parameters.length ? command.parameters.length : args.length;
     
-    // Check each parameter
     for (let argIndex = 0; argIndex < argsLen; argIndex++) {
         const parameter = command.parameters[argIndex];
 
@@ -231,7 +224,7 @@ function verifyArgs(args: any[], command: Command): boolean {
                     if (command.options.disableQuotationMarks === true) {
                         args[argIndex] = args.splice(argIndex).join(" ");
                     } else if (args[argIndex].match(/^"([^]*)"$|^'([^]*)'$/)) {
-                        args[argIndex] = args[argIndex].slice(1,-1); // Delete quotes
+                        args[argIndex] = args[argIndex].slice(1,-1);
                     }
                     break;
                 case 'number':
@@ -258,7 +251,6 @@ function verifyArgs(args: any[], command: Command): boolean {
 }
 
 export function searchCommand(commandName: string): Command | null {
-    // Check that it's not an empty string
     if (typeof commandName === 'string' && commandName.length) {        
         const search = commandsManager.alias.get(commandName.toLowerCase());
         if (search != undefined) { return commandsManager.list[search]; }
@@ -272,10 +264,8 @@ export function commandExists(commandName: string): boolean {
 }
 
 export async function commandExecution(message : Message): Promise<void> {
-    // Check if string is empty
     if (!message.body || message.body.length === 0) { return; }
     
-    // Separate arguments and command
     const commandArgs: string[] = message.body.match(/"([^"]*)"|'([^']*)'|[^ ]+/gim) ?? [];
     const commandName: string = commandArgs.shift()?.slice(commandsPrefix.length) ?? '';
     const commandObj = searchCommand(commandName);
@@ -284,32 +274,26 @@ export async function commandExecution(message : Message): Promise<void> {
     const from = message.fromMe ? message.to : message.from;
     
     try {
-        // Cool-down system
         if (!checkUserCoolDown(message)) { return; }
 
-        // Verify that the user has access to the command
         if (!commandObj.options.adminOnly || (message.fromMe && commandObj.options.adminOnly)) {
             USERS_EXECUTING_COMMANDS.add(from);
 
             commandLog(commandObj.alias[0], commandArgs, message);
             await sendReactionResponse('⏳', message);
             
-            // Commands that require a message to be quoted
             if (commandObj.options.needQuotedMessage === true && !message.hasQuotedMsg) {
                 throw new CommandError(COMMAND_ERROR_MESSAGES.MISSING_QUOTE);
             }
-            // Commands without parameters
             if (!commandObj.parameters) {     
                 await commandObj.callback(commandArgs, message);
                 USERS_EXECUTING_COMMANDS.delete(from);
                 botLogOk(`El comando "${commandObj.alias[0]}" finalizó su ejecución.`);
                 return;
             } else {
-                // Commands with parameters
                 const paramLength = commandObj.parameters.length;
                 const optionalValues = [];
                 
-                // Add default values if missing
                 if (commandObj.hasOptionalValues && commandArgs.length < paramLength) {
                     for (let i = commandArgs.length; i < paramLength; i++) {
                         if (commandObj.parameters[i].isOptional) {

@@ -6,7 +6,6 @@ export const COOLDOWN_MULTIPLIER = [ 1, 1.3, 1.5, 2.5, 3];
 export const MESSAGES_HISTORY: Map<string, number[]> = new Map();
 export const USERS_EXECUTING_COMMANDS: Set<string> = new Set();
 
-// Auto-clear history
 setInterval(() => {
     if (MESSAGES_HISTORY.size === 0) { return; }
     let cleared = false;

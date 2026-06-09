@@ -45,9 +45,6 @@ async function fetchMendotran(path: string, body: object): Promise<any> {
     }
 }
 
-/**
- * Hacer una petición al servidor de Mendotran para obtener información sobre todos los micros.
- */
 export async function fetchAllBusesInfo(): Promise<any> {
     return fetchMendotran("search", {
         search: ["services"],
@@ -55,9 +52,6 @@ export async function fetchAllBusesInfo(): Promise<any> {
     });
 }
 
-/**
- * Hacer una petición al servidor de Mendotran para obtener información sobre todas las paradas.
- */
 export async function fetchAllStopsInfo(): Promise<any> {
     return fetchMendotran("search", {
         search: ["stops"],
@@ -65,10 +59,6 @@ export async function fetchAllStopsInfo(): Promise<any> {
     });
 }
 
-/**
- * Hacer una petición al servidor de Mendotran para obtener información acerca de los horarios de una parada.
- * @param {string} id - ID de la parada.
- */
 export async function fetchStopArrivals(id: number): Promise<ArrivalsResponse> {
     return fetchMendotran("arrivals", {
         first_time: true,
@@ -76,10 +66,6 @@ export async function fetchStopArrivals(id: number): Promise<ArrivalsResponse> {
     });
 }
 
-/**
- * Hacer una petición al servidor de Mendotran para obtener información acerca de un colectivo.
- * @param {string} id - ID del colectivo.
- */
 export async function fetchBusInfo(id: number): Promise<any> {
     return fetchMendotran("service", {
         service_id: id

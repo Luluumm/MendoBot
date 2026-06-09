@@ -3,11 +3,9 @@ import { getTimeString } from '../../utils/getTimeString.js';
 import { botLogNeutral } from '../../utils/botLog';
 import { whatsappSettings } from "../../index.js";
 
-// Functions
 export async function printMessage(message: Message, from: string, edited?: boolean): Promise<void> {
     let terminalText: string = '';
 
-    // Show contact name if it is booked
     let userName: string = 'DESCONOCIDO';
 
     if (message.fromMe === true) {
@@ -24,7 +22,6 @@ export async function printMessage(message: Message, from: string, edited?: bool
         }
     }
 
-    // Media: Audio, voice message, video, image, etc
     let messageMedia: string = '';
 
     // @ts-ignore
@@ -83,13 +80,9 @@ export async function printMessage(message: Message, from: string, edited?: bool
         if (message.body.length > 0) { messageMedia += ': '; }
     }
 
-    // Setting: Show phone number
     if (whatsappSettings.showPhoneNumber === true) { terminalText += `${from}`; }
-    // User name
     terminalText += ` <${userName}>: `;
-    // Media
     if (messageMedia) { terminalText += messageMedia; }
-    // Edited
     if (edited) { terminalText += '[✍️ EDITADO ✍️] '; }
 
     botLogNeutral(`${terminalText}${message.body.replaceAll('\n', '\\n')}`);
