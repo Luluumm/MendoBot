@@ -145,7 +145,7 @@ function distanceInMeters(fromLat: number, fromLon: number, toLat: number, toLon
     return earthRadius * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
-export function getNearestStopsText(latitude: number, longitude: number, limit: number = 15): string {
+export function getNearestStopsText(latitude: number, longitude: number, limit: number = 7): string {
     const stopsWithCoordinates = Object.entries(MENDOTRAN_STOPS_DATABASE)
         .filter(([, stop]) => Array.isArray(stop.coordinates) && stop.coordinates.length >= 2);
 
