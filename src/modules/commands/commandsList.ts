@@ -141,7 +141,7 @@ createCommand(['guardarparada', 'guardar', 'save'], {
         const stopCode = normalizeStopCode(stop);
         saveStopAlias(getMessageOwner(message), alias, stopCode);
 
-        await sendResponse(`Guardada: *${alias.toUpperCase()}* -> *${stopCode}*\n\nYa puede usar:\n\`n°MICRO ${alias.toUpperCase()}\``, message, {
+        await sendResponse(`Guardada: *${alias.toUpperCase()}* -> *${stopCode}*\n\n> Ya puede usar:\n> \`n°MICRO ${alias.toUpperCase()}\``, message, {
             reaction: '✅',
             messageOptions: { linkPreview: false },
         });
@@ -170,7 +170,7 @@ createCommand(['mystops', 'misparadas', 'paradasguardadas', 'savedstops'], {
             return;
         }
 
-        const text = savedStops.map((savedStop) => `*${savedStop.alias}* -> ${savedStop.stopCode}`).join('\n');
+        const text = savedStops.map((savedStop) => `> *${savedStop.alias}* -> ${savedStop.stopCode}`).join('\n');
         await sendResponse(`📌 *Paradas guardadas* 📌\n\n${text}`, message, {
             reaction: '📌',
             messageOptions: { linkPreview: false },
@@ -202,11 +202,11 @@ createCommand(['recordatorio', 'reminder', 'recordar','r'], {
         }
 
         setTimeout(() => {
-            const text = `🔔 *Recordatorio Mendotran*\n\nEl micro *${nextArrival.bus}* llega a la parada *${nextArrival.stopCode}* aproximadamente a las *${getTimeString(nextArrival.arrival.arrivalTime, true, true)}*.\n\n📍 ${nextArrival.stopLocation ?? 'Ubicacion sin nombre'}`;
+            const text = `🔔 *Recordatorio Mendotran*\n\n> El micro *${nextArrival.bus}* llega a la parada *${nextArrival.stopCode}* aproximadamente a las *${getTimeString(nextArrival.arrival.arrivalTime, true, true)}*.\n\n> 📍 ${nextArrival.stopLocation ?? 'Ubicacion sin nombre'}`;
             wwebClient.sendMessage(owner, text).catch(console.error);
         }, waitTime);
 
-        await sendResponse(`Te recordaré!!.\n\nLe aviso a las *${getTimeString(reminderAt, true, true)}* para el micro *${bus}* en *${nextArrival.stopCode}*.`, message, {
+        await sendResponse(`Te recordaré!!.\n\n> Le aviso a las *${getTimeString(reminderAt, true, true)}* para el micro *${bus}* en *${nextArrival.stopCode}*.`, message, {
             reaction: '⏰',
             messageOptions: { linkPreview: false },
         });
