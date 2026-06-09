@@ -171,9 +171,9 @@ export function getNearestStopsText(latitude: number, longitude: number, limit: 
     let text = `*${nearestStops.length} paradas mas cercanas*\n\n`;
     nearestStops.forEach((nearestStop, index) => {
         const buses = [...new Set(nearestStop.stop.bus_list)].join(', ') || 'Sin micros cargados';
-        text += `> ${index + 1}. *${nearestStop.code}* - ${Math.round(nearestStop.distance)} m\n`;
-        text += `> ${nearestStop.stop.location ?? 'Ubicacion sin nombre'}\n`;
-        text += `> Micros: ${buses}\n\n`;
+        text += `🚏 ${index + 1}. *${nearestStop.code}* - ${Math.round(nearestStop.distance)} m\n`;
+        text += `> 📍 ${nearestStop.stop.location ?? 'Ubicacion sin nombre'}\n`;
+        text += `> 🚌 Micros: ${buses}\n\n`;
     });
 
     return text.trim();
