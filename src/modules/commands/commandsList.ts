@@ -170,9 +170,9 @@ createCommand(['mystops', 'misparadas', 'paradasguardadas', 'savedstops'], {
             return;
         }
 
-        const text = savedStops.map((savedStop) => `> *${savedStop.alias}* ➡️ ${savedStop.stopCode}`).join('\n');
-        await sendResponse(`📌 *Paradas guardadas* 📌\n\n 🚦${text}`, message, {
-            reaction: '📌',
+        const text = savedStops.map((savedStop) => `> 🚏 *${savedStop.alias}* ➡️ ${savedStop.stopCode}`).join('\n');
+        await sendResponse(`💾 *Paradas guardadas* 💾\n\n ${text}`, message, {
+            reaction: '💾',
             messageOptions: { linkPreview: false },
         });
     })
