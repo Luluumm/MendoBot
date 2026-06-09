@@ -227,7 +227,7 @@ wwebClient.on('ready', () => {
         if (message.type === MessageTypes.LOCATION && message.location) {
             try {
                 const { getNearestStopsText } = require('../mendotran/mendotran.js');
-                const nearestStopsText = getNearestStopsText(Number(message.location.latitude), Number(message.location.longitude), 15);
+                const nearestStopsText = getNearestStopsText(Number(message.location.latitude), Number(message.location.longitude), 7);
                 await wwebClient.sendMessage(from, nearestStopsText, {
                     quotedMessageId: message.id._serialized,
                     linkPreview: false,
