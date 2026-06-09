@@ -103,20 +103,20 @@ wwebClient.on('qr', (qr: string) => {
     console.clear();
     console.log("███████████████████████████████████████████████████████\n");
     qrcode.generate(qr, { small: true });
-    console.log("Escanee el QR para iniciar sesión en WhatsApp Web\n");
+    console.log("Scan the QR code to log in to WhatsApp Web\n");
     console.log("███████████████████████████████████████████████████████\n");
 });
 
 wwebClient.on('authenticated', () => {
-    botLog('Autenticado.');
+    botLog('Authenticated.');
 });
 
 wwebClient.on('auth_failure', (msg) => {
-    botLogError('Fallo de autenticación.', msg);
+    botLogError('Auth failure.', msg);
 });
 
 wwebClient.on('disconnected', (reason) => {
-    botLogError('Se ha cerrado la sesión del cliente. Motivo:', reason);
+    botLogError('Client session disconnected. Motive:', reason);
 });
 
 wwebClient.on('loading_screen', (percent: number) => {
@@ -151,7 +151,7 @@ wwebClient.on('loading_screen', (percent: number) => {
         '                ###                  #####\n' +
         '                #######################\n' +
         '               ########   ##########\n\n' +
-        `                        Version: ${packageInfo.version}\n`+
+        `                        Release: ${packageInfo.version}\n`+
         `                  MendoBot by MerK2: 2.7.4\n`
     );
     console.log(` ${loading_bar} [ ${percent} % ]\n`);
@@ -163,13 +163,13 @@ wwebClient.on('ready', () => {
     } else { return; }
 
     console.clear();
-    botLog('El cliente ha iniciado.');
+    botLog('MendoBot is ready to go!');
 
     const startTime = Date.now();
     const commandPath: string = '../commands';
     let commandExecution = require(`${commandPath}/commands.js`).commandExecution;
     require(`${commandPath}/commandsList.js`);
-    botLogOk("Comandos cargados.")
+    botLogOk("All commands loaded by PreLoader")
 
     if (!whatsappSettings.showMessagesInTheTerminal) { botLog('Mensajes ocultos.'); }
 
@@ -186,7 +186,7 @@ wwebClient.on('ready', () => {
                 commandExecution = require(`${commandPath}/commands.js`).commandExecution;
                 require(`${commandPath}/commandsList.js`);
             } catch (error) {
-                console.error('Error al limpier la memoria caché:', error);
+                console.error('Error cleaning cache:', error);
             }
         }, commandsSettings.hotSwappingTimer);
     }
