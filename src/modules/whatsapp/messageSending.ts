@@ -20,8 +20,8 @@ async function sendMessage(content: MessageContent, messageId: MessageId, option
     return await wwebClient.sendMessage(messageId.remote, content, options);
 }
 
-async function sendReplyMessage(content: MessageContent, messageId: MessageId, options?: MessageSendOptions | undefined): Promise<Message> {
-    return await sendMessage(content, messageId, { ...options, quotedMessageId: messageId._serialized });
+async function sendReplyMessage(content: MessageContent, message: Message, options?: MessageSendOptions | undefined): Promise<Message> {
+    return await message.reply(content, undefined, { ...options });
 }
 
 async function sendReaction(reaction: string, message: Message): Promise<Message> {
@@ -58,7 +58,7 @@ export async function readResponse(response: CommandResponse, message: Message):
             switch (response.type) {
                 case CommandResponseType.REPLY_MESSAGE:
                 case CommandResponseType.SEND_MESSAGE:
-                    _return = await sendReplyMessage(response.data.content, message.id, msgOptions);
+                    _return = await sendReplyMessage(response.data.content, message, msgOptions);
                     break;
             }
         }
@@ -67,7 +67,7 @@ export async function readResponse(response: CommandResponse, message: Message):
     } else {
         await sendReaction(response.data.reaction ?? '😵', message);
         if (response.data.content && typeof response.data.content === 'string') {
-            _return = await sendReplyMessage(`⚠️ *Algo malio sal* ⚠️\n\n${response.data.content}`, message.id, msgOptions);
+            _return = await sendReplyMessage(`⚠️ Algo malio sal ⚠️\n\n${response.data.content}`, message, msgOptions);
         }
 
         botLogError('ERROR RESPONSE:', logString);
