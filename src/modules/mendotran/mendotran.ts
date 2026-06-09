@@ -171,9 +171,9 @@ export function getNearestStopsText(latitude: number, longitude: number, limit: 
     let text = `*${nearestStops.length} paradas mas cercanas*\n\n`;
     nearestStops.forEach((nearestStop, index) => {
         const buses = [...new Set(nearestStop.stop.bus_list)].join(', ') || 'Sin micros cargados';
-        text += `${index + 1}. *${nearestStop.code}* - ${Math.round(nearestStop.distance)} m\n`;
-        text += `   ${nearestStop.stop.location ?? 'Ubicacion sin nombre'}\n`;
-        text += `   Micros: ${buses}\n\n`;
+        text += `> ${index + 1}. *${nearestStop.code}* - ${Math.round(nearestStop.distance)} m\n`;
+        text += `> ${nearestStop.stop.location ?? 'Ubicacion sin nombre'}\n`;
+        text += `> Micros: ${buses}\n\n`;
     });
 
     return text.trim();
@@ -355,7 +355,7 @@ export async function getStopArrivals(stopNumber: string, bus?: string): Promise
         // String
         let text = `🚦 *Parada ${stopNumber}${bus ? ' - Línea ' + bus : ''}* 🚦\n\n`
                     + arrivalsToString(arrivalsResponse, bus ? 5 : 10)
-                    + `\n\n📍 *${MENDOTRAN_STOPS_DATABASE[stopNumber].location}* 📍`;
+                    + `\n\n> 📍 *${MENDOTRAN_STOPS_DATABASE[stopNumber].location}* 📍`;
 
         return text;
     }).catch((error) => {
@@ -392,7 +392,7 @@ export async function getMetroArrivals(stopName: string): Promise<string> {
                         + '\n\n'
                         + (metro101Arrivals.arrivals.length > 0 ? arrivalsToString(metro101Arrivals) : `🚋 *Sin arribos para el andén ${stop.direction[1]}* 🏃‍♀️`)
                         + (metro101Restantes > 0 ? `\n\n> 🚏 *${metro101Restantes} más en camino*` : '')
-                        + `\n\n📍 *${MENDOTRAN_STOPS_DATABASE[stop["100"]].location}* 📍`;
+                        + `\n\n> 📍 *${MENDOTRAN_STOPS_DATABASE[stop["100"]].location}* 📍`;
                 return text;
             } else {
                 return `🚋 Sin arribos para la estación 🏃‍♀️`;
