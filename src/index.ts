@@ -16,7 +16,7 @@ import fs from 'node:fs';
 if (!fs.existsSync("./json/.bbdd-version.json") || !fs.existsSync("./json/mendotran-buses.json") || !fs.existsSync("./json/mendotran-stops.json") || process.argv.includes('refresh')) {
     if (!process.argv.includes('refresh')) {
         botLogError(`No se han encontrado los archivos de la base de datos en "./json". `
-            + `Se procederá a generar la base de datos.`
+            + `Se está regenerando la base de datos, esto puede tardar unos minutos...`
         );
     }
     
