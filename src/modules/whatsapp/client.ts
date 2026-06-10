@@ -173,7 +173,7 @@ wwebClient.on('ready', () => {
 
     if (!whatsappSettings.showMessagesInTheTerminal) { botLog('Mensajes ocultos.'); }
 
-    // Hot-Swap
+
     if (commandsSettings.hotSwappingEnabled) {
         setInterval(() => {
             try {
@@ -191,10 +191,10 @@ wwebClient.on('ready', () => {
         }, commandsSettings.hotSwappingTimer);
     }
 
-    // Show edited messages in the terminal
+   
     if (whatsappSettings.showMessagesInTheTerminal) {
         wwebClient.on('message_edit', async (message: Message) => {
-            // Ignore previous messages
+           
             if (message.timestamp * 1000 < startTime) { return; }
             const from: string = message.fromMe ? message.to : message.from;
             printMessage(message, from, true);
@@ -202,10 +202,9 @@ wwebClient.on('ready', () => {
     }
 
     wwebClient.on('message_create', async (message: Message) => {
-        // Ignore status messages and previous messages
+ 
         if (message.isStatus || (message.timestamp * 1000 < startTime)) { return; }
 
-        // Setting: Ignore "media" messages, but keep shared locations for nearby stop lookup.
         if (whatsappSettings.ignoreNonTextMessages === true && message.type !== MessageTypes.TEXT && message.type !== MessageTypes.LOCATION) { return; }
 
         if (message.type === MessageTypes.E2E_NOTIFICATION || message.type === MessageTypes.NOTIFICATION_TEMPLATE ||
@@ -214,14 +213,14 @@ wwebClient.on('ready', () => {
 
         const from: string = message.fromMe ? message.to : message.from;
 
-        // Setting: Show messages in the terminal
+
         if (whatsappSettings.showMessagesInTheTerminal) { printMessage(message, from); }
 
-        /* Commands */
+      
 
         if (commandExecution === undefined) { return; }
 
-        // Setting: Ignore commands not coming from admin
+   
         if (commandsSettings.adminOnly && !message.fromMe) { return; }
 
         if (message.type === MessageTypes.LOCATION && message.location) {

@@ -61,7 +61,7 @@ createCommand(['micro', 'bus', 'm', '🚍'], {
 })
     .addParameter('number', {
         name: 'Línea',
-        description: 'La línea de colectivo de la cual desea saber sus horarios.',
+        description: 'El número del colectivo que querés consultar.',
         example: '608',
     })
     .addParameter('string', {
