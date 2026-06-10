@@ -63,7 +63,7 @@ export async function readResponse(response: CommandResponse, message: Message):
             }
         }
         
-        botLogOk('OK RESPONSE:', "Comando Ejecutado Correctamente", logString);
+        botLogOk('OK RESPONSE:', "Comando Ejecutado Correctamente");
     } else {
         await sendReaction(response.data.reaction ?? '😵', message);
         if (response.data.content && typeof response.data.content === 'string') {
