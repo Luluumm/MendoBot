@@ -130,7 +130,7 @@ createCommand(['guardarparada', 'guardar', 'save'], {
         const stopCode = normalizeStopCode(stop);
         saveStopAlias(getMessageOwner(message), alias, stopCode);
 
-        await sendResponse(`Guardada: *${alias.toUpperCase()}* ➡️ *${stopCode}*\n\n> Ya puede usar:\n> \`n°MICRO ${alias.toUpperCase()}\``, message, {
+        await sendResponse(`Guardada: *${alias()}* ➡️ *${stopCode}*\n\n> Ya puede usar:\n> \`n°MICRO ${alias()}\``, message, {
             reaction: '✅',
             messageOptions: { linkPreview: false },
         });
@@ -159,8 +159,8 @@ createCommand(['mystops', 'misparadas', 'paradasguardadas', 'savedstops'], {
         }
 
         const text = savedStops.map((savedStop) => `> 🚏 *${savedStop.alias}-${savedStop.stopCode}*`).join('\n');
-        await sendResponse(`💾 *Paradas guardadas* 💾\n\n${text}`, message, {
-            reaction: '💾',
+        await sendResponse(`💾  *Paradas guardadas*  💾\n\n${text}`, message, {
+            reaction: '📋',
             messageOptions: { linkPreview: false },
         });
     })    
