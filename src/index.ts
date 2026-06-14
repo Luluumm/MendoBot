@@ -4,9 +4,6 @@ export const commandsPrefix = commandsSettings.commandPrefix ?? '';
 export const packageInfo = require('../package.json');
 export const ACTUAL_BBDD_VERSION: number = 2;
 
-import dns from 'node:dns';
-dns.setServers(['1.1.1.1', '1.0.0.1']);
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 import { botLogError } from './utils/botLog.js'
 
