@@ -62,7 +62,8 @@ export const wwebClient = new Client({
         dataPath: `${whatsappSettings.wwebjsCache}/.wwebjs_auth`,
     }),
     puppeteer: {
-        executablePath: getBrowserExecutablePath(),
+        // Force system Chromium instead of bundled one
+        executablePath: '/usr/bin/chromium-browser', // or '/usr/bin/chromium' depending on your distro
         headless: true,
         args: [
             '--no-sandbox',
