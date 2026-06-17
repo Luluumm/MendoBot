@@ -75,3 +75,17 @@ export async function readResponse(response: CommandResponse, message: Message):
 
     if (_return) { return _return; }
 }
+export async function sendAdminMessage(
+    content: string
+): Promise<void> {
+    const adminPhone = process.env.ADMIN_PHONE;
+
+    if (!adminPhone) {
+        return;
+    }
+
+    await wwebClient.sendMessage(
+        `${adminPhone}@c.us`,
+        content
+    );
+}

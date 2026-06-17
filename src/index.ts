@@ -1,3 +1,6 @@
+const dotenv = require('dotenv');
+
+dotenv.config();
 export const whatsappSettings = require('../config/whatsapp.json');
 export const commandsSettings = require('../config/commands.json');
 export const commandsPrefix = commandsSettings.commandPrefix ?? '';

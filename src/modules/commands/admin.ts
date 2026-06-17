@@ -1,9 +1,12 @@
-const ADMIN_PHONE = process.env.ADMIN_PHONE;
+export function isAdmin(phone: string): boolean {
+    const adminPhone = process.env.ADMIN_PHONE;
 
-export function isAdmin(sender: string): boolean {
-    const phone = sender
-        .replace('@s.whatsapp.net', '')
-        .replace('@lid', '');
+    if (!adminPhone) {
+        return false;
+    }
 
-    return phone === ADMIN_PHONE;
+    const normalize = (value: string) =>
+        value.replace("@c.us", "").replace(/\D/g, "");
+
+    return normalize(phone) === normalize(adminPhone);
 }

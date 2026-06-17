@@ -8,7 +8,8 @@ import { whatsappSettings, commandsSettings, packageInfo } from "../../index.js"
 import { printMessage } from './printMessage.js';
 
 import dns from 'dns';
-
+import { sendStartupNotification }
+from './startupNotification.js';
 
 const chromium: { path?: string } = require('chromium');
 
@@ -164,7 +165,7 @@ wwebClient.on('ready', () => {
     } else { return; }
 
     botLog('MendoBot is ready to go!');
-
+    void sendStartupNotification();
     const startTime = Date.now();
     const commandPath: string = '../commands';
     let commandExecution = require(`${commandPath}/commands.js`).commandExecution;
