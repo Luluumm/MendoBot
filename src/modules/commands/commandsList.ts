@@ -4,7 +4,7 @@ import { getMetroArrivals, getNextStopArrival, getStopArrivals, normalizeStopCod
 import { getSavedStopAlias, listSavedStopAliases, saveStopAlias } from "../mendotran/savedStops.js";
 import { getTimeString } from "../../utils/getTimeString.js";
 import { wwebClient } from "../whatsapp/client.js";
-
+const os = require('os');
 function getMessageOwner(message: any): string {
     return message.fromMe ? message.to : message.from;
 }
@@ -163,7 +163,7 @@ createCommand(['mystops', 'misparadas', 'paradasguardadas', 'savedstops'], {
             reaction: '📋',
             messageOptions: { linkPreview: false },
         });
-    })    
+    })
     .closeCommand();
 
 // Recordatorio
@@ -221,5 +221,44 @@ createCommand(['metro', 'metrotranvia', 'metrotranvía', 'estacion', 'estación'
                     reaction: '🚋',
                 });
             });
+    })
+    .closeCommand();
+
+
+
+
+    createCommand(['uptime', 'up', '⏱️'], {
+    options: {
+        disableQuotationMarks: true,
+    },
+    info: {
+        name: 'Uptime',
+        description: 'Muestra cuánto tiempo lleva encendido el bot.',
+    }
+})
+    .setCallback(async (_, message) => {
+        const uptime = process.uptime();
+
+        const days = Math.floor(uptime / 86400);
+        const hours = Math.floor((uptime % 86400) / 3600);
+        const minutes = Math.floor((uptime % 3600) / 60);
+        const seconds = Math.floor(uptime % 60);
+
+        const formatted = [
+            days ? `${days}d` : null,
+            hours ? `${hours}h` : null,
+            minutes ? `${minutes}m` : null,
+            `${seconds}s`
+        ]
+            .filter(Boolean)
+            .join(' ');
+
+        await sendResponse(
+            `⏱️ *Uptime del bot:* ${formatted}`,
+            message,
+            {
+                reaction: '⏱️',
+            }
+        );
     })
     .closeCommand();
