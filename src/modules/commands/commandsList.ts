@@ -5,6 +5,7 @@ import { getSavedStopAlias, listSavedStopAliases, saveStopAlias } from "../mendo
 import { getTimeString } from "../../utils/getTimeString.js";
 import { wwebClient } from "../whatsapp/client.js";
 const os = require('os');
+const { exec } = require('child_process');
 function getMessageOwner(message: any): string {
     return message.fromMe ? message.to : message.from;
 }
@@ -227,38 +228,78 @@ createCommand(['metro', 'metrotranvia', 'metrotranvía', 'estacion', 'estación'
 
 
 
-    createCommand(['uptime', 'up', '⏱️'], {
+
+
+
+createCommand(['uptime', 'up', 'status', '🖥️'], {
     options: {
         disableQuotationMarks: true,
     },
     info: {
-        name: 'Uptime',
-        description: 'Muestra cuánto tiempo lleva encendido el bot.',
+        name: 'Estado del sistema',
+        description: 'Muestra información del servidor donde corre el bot.',
     }
 })
     .setCallback(async (_, message) => {
-        const uptime = process.uptime();
+        try {
+            const [tempOutput, osOutput] = await Promise.all([
+                new Promise<string>((resolve, reject) => {
+                    exec('sensors package_thermal-virtual-0', (err: Error | null, stdout: string) => {
+                        if (err) return reject(err);
+                        resolve(stdout);
+                    });
+                }),
+                new Promise<string>((resolve, reject) => {
+                    exec('hostnamectl', (err: Error | null, stdout: string) => {
+                        if (err) return reject(err);
+                        resolve(stdout);
+                    });
+                })
+            ]);
 
-        const days = Math.floor(uptime / 86400);
-        const hours = Math.floor((uptime % 86400) / 3600);
-        const minutes = Math.floor((uptime % 3600) / 60);
-        const seconds = Math.floor(uptime % 60);
+            const tempMatch = tempOutput.match(/\+?([0-9.]+)°C/);
+            const cpuTemp = tempMatch ? `${tempMatch[1]}°C` : 'Desconocida';
 
-        const formatted = [
-            days ? `${days}d` : null,
-            hours ? `${hours}h` : null,
-            minutes ? `${minutes}m` : null,
-            `${seconds}s`
-        ]
-            .filter(Boolean)
-            .join(' ');
+            const osMatch = osOutput.match(/Operating System:\s*(.+)/);
+            const hostMatch = osOutput.match(/Static hostname:\s*(.+)/);
 
-        await sendResponse(
-            `*Bot's uptime:*⏱️ ${formatted}`,
-            message,
-            {
-                reaction: '⏱️',
-            }
-        );
+            const operatingSystem = osMatch?.[1]?.trim() ?? os.type();
+            const hostname = hostMatch?.[1]?.trim() ?? os.hostname();
+
+            const uptime = os.uptime();
+
+            const days = Math.floor(uptime / 86400);
+            const hours = Math.floor((uptime % 86400) / 3600);
+            const minutes = Math.floor((uptime % 3600) / 60);
+
+            const formattedUptime = [
+                days ? `${days}d` : null,
+                hours ? `${hours}h` : null,
+                `${minutes}m`
+            ]
+                .filter(Boolean)
+                .join(' ');
+
+            await sendResponse(
+                ` *Estado del sistema*🖥️
+
+🏷️ *Dispositivo:* ${hostname}
+🐧 *Sistema Operativo:* ${operatingSystem}
+⏱️ *Uptime:* ${formattedUptime}
+🌡️ *CPU:* ${cpuTemp}`,
+                message,
+                {
+                    reaction: '🖥️',
+                }
+            );
+        } catch (error) {
+            await sendResponse(
+                '❌ No se pudo obtener la información del sistema.',
+                message,
+                {
+                    reaction: '❌',
+                }
+            );
+        }
     })
     .closeCommand();
