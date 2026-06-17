@@ -1,20 +1,9 @@
-export function isAdmin(phone: string): boolean {
-    const adminPhone = process.env.ADMIN_PHONE;
+export function isAdmin(id: string): boolean {
+    const adminId = process.env.ADMIN_ID;
 
-    console.log("================================");
-    console.log("PHONE RECEIVED:", phone);
-    console.log("ADMIN FROM ENV:", adminPhone);
+    if (!adminId) {
+        return false;
+    }
 
-    const normalize = (value: string) =>
-        value.replace("@c.us", "").replace("@g.us", "").replace(/\D/g, "");
-
-    console.log("PHONE NORMALIZED:", normalize(phone));
-    console.log("ADMIN NORMALIZED:", normalize(adminPhone ?? ""));
-
-    const result = normalize(phone) === normalize(adminPhone ?? "");
-
-    console.log("IS ADMIN:", result);
-    console.log("================================");
-
-    return result;
+    return id === adminId;
 }
