@@ -230,12 +230,11 @@ wwebClient.on('ready', () => {
 
         if (message.type === MessageTypes.LOCATION && message.location) {
             const session = getTripSession(from);
+            const lat = Number(message.location.latitude);
+            const lng = Number(message.location.longitude);
+
             if (session && session.state === "awaiting_location") {
-                setTripOrigin(
-                    from,
-                    Number(message.location.latitude),
-                    Number(message.location.longitude)
-                );
+                setTripOrigin(from, lat, lng);
                 await wwebClient.sendMessage(from,
                     "¿A dónde querés ir?",
                     { quotedMessageId: message.id._serialized }
@@ -243,9 +242,50 @@ wwebClient.on('ready', () => {
                 return;
             }
 
+            if (session && session.state === "awaiting_destination") {
+                session.readyAt = Date.now() + 2000;
+                try {
+                    const token = "OQkGfHEQqWRO9zXRQgJb";
+                    const xss = "86adb365fced6934d3ff6bec";
+                    const response = await planTrip(
+                        session.originLat!,
+                        session.originLng!,
+                        lat,
+                        lng,
+                        token,
+                        xss
+                    );
+                    const bestTrip = response.plan[0];
+                    if (!bestTrip) {
+                        await wwebClient.sendMessage(from,
+                            "No encontré un recorrido disponible.",
+                            { quotedMessageId: message.id._serialized }
+                        );
+                        return;
+                    }
+                    const formatted = formatTrip(bestTrip);
+                    await wwebClient.sendMessage(from,
+                        `📍 *Destino:* ubicación compartida\n\n${formatted}`,
+                        { quotedMessageId: message.id._serialized, linkPreview: false }
+                    );
+                } catch (error) {
+                    await wwebClient.sendMessage(from,
+                        "⚠️ No pude planificar el viaje. Probá de nuevo.",
+                        { quotedMessageId: message.id._serialized }
+                    );
+                } finally {
+                    clearTripSession(from);
+                }
+                return;
+            }
+
+            if (session) {
+                session.readyAt = Date.now() + 2000;
+            }
+
             try {
                 const { getNearestStopsText } = require('../mendotran/mendotran.js');
-                const nearestStopsText = getNearestStopsText(Number(message.location.latitude), Number(message.location.longitude), 7);
+                const nearestStopsText = getNearestStopsText(lat, lng, 7);
                 await wwebClient.sendMessage(from, nearestStopsText, {
                     quotedMessageId: message.id._serialized,
                     linkPreview: false,
