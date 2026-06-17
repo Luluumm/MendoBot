@@ -11,7 +11,6 @@ import dns from 'dns';
 import { sendStartupNotification }
 from './startupNotification.js';
 import { getTripSession, setTripOrigin, clearTripSession } from '../../services/tripSessions.js';
-import { resolveDestination } from '../../services/resolveDestination.js';
 import { planTrip } from '../../services/tripPlanner.js';
 import { formatTrip } from '../../services/formatTrip.js';
 
@@ -302,49 +301,13 @@ wwebClient.on('ready', () => {
             return;
         }
 
-        const tripSession = getTripSession(from);
-        if (tripSession && tripSession.state === "awaiting_destination" && message.type === MessageTypes.TEXT) {
-            if (Date.now() < tripSession.readyAt) return;
-            const dest = resolveDestination(message.body);
-            if (!dest) {
-                await wwebClient.sendMessage(from,
-                    "No encontré ese destino. Probá con otro nombre o compartí la ubicación del lugar.",
-                    { quotedMessageId: message.id._serialized }
-                );
-                return;
-            }
-            try {
-                const token = "OQkGfHEQqWRO9zXRQgJb";
-                const xss = "86adb365fced6934d3ff6bec";
-                const response = await planTrip(
-                    tripSession.originLat!,
-                    tripSession.originLng!,
-                    dest.lat,
-                    dest.lng,
-                    token,
-                    xss
-                );
-                const bestTrip = response.plan[0];
-                if (!bestTrip) {
-                    await wwebClient.sendMessage(from,
-                        "No encontré un recorrido disponible.",
-                        { quotedMessageId: message.id._serialized }
-                    );
-                    return;
-                }
-                const formatted = formatTrip(bestTrip);
-                await wwebClient.sendMessage(from,
-                    `📍 *Destino:* ${dest.label}\n\n${formatted}`,
-                    { quotedMessageId: message.id._serialized, linkPreview: false }
-                );
-            } catch (error) {
-                await wwebClient.sendMessage(from,
-                    "⚠️ No pude planificar el viaje. Probá de nuevo.",
-                    { quotedMessageId: message.id._serialized }
-                );
-            } finally {
-                clearTripSession(from);
-            }
+        const pendingSession = getTripSession(from);
+        if (pendingSession?.state === "awaiting_destination" && message.type === MessageTypes.TEXT) {
+            if (Date.now() < pendingSession.readyAt) return;
+            await wwebClient.sendMessage(from,
+                "Compartí la ubicación del destino para poder planificar el viaje.",
+                { quotedMessageId: message.id._serialized }
+            );
             return;
         }
 
