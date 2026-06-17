@@ -1,7 +1,7 @@
 {
     "botName": "MendoBot",
     "ignoreNonTextMessages": false,
-    "showMessagesInTheTerminal": true,
+    "showMessagesInTheTerminal": false,
     "showPhoneNumber": true,
     "showContactName": false,
     "showUserName": true,
