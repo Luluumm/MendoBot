@@ -275,7 +275,12 @@ export async function commandExecution(message: Message): Promise<void> {
 
     try {
         if (!checkUserCoolDown(message)) { return; }
-
+        console.log({
+            from: message.from,
+            to: message.to,
+            fromMe: message.fromMe,
+            author: message.author
+        });
         const sender = message.fromMe ? message.to : message.from;
 
         if (commandObj.options.adminOnly && !isAdmin(sender)) {
