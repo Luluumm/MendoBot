@@ -281,7 +281,7 @@ createCommand(['uptime', 'up', 'status', '🖥️'], {
                 .join(' ');
 
             await sendResponse(
-                ` *Estado del sistema*🖥️
+                `ℹ️ *Estado del sistema* ℹ️
 
 > 🏷️ *Dispositivo:* ${hostname}
 > 🐧 *Sistema Operativo:* ${operatingSystem}
