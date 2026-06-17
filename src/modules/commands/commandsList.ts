@@ -234,6 +234,7 @@ createCommand(['metro', 'metrotranvia', 'metrotranvía', 'estacion', 'estación'
 createCommand(['uptime', 'up', 'status', '🖥️'], {
     options: {
         disableQuotationMarks: true,
+        adminOnly: true,
     },
     info: {
         name: 'Estado del sistema',
