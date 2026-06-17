@@ -283,10 +283,10 @@ createCommand(['uptime', 'up', 'status', '🖥️'], {
             await sendResponse(
                 ` *Estado del sistema*🖥️
 
-🏷️ *Dispositivo:* ${hostname}
-🐧 *Sistema Operativo:* ${operatingSystem}
-⏱️ *Uptime:* ${formattedUptime}
-🌡️ *CPU:* ${cpuTemp}`,
+> 🏷️ *Dispositivo:* ${hostname}
+> 🐧 *Sistema Operativo:* ${operatingSystem}
+> ⏱️ *Uptime:* ${formattedUptime}
+> 🌡️ *CPU:* ${cpuTemp}`,
                 message,
                 {
                     reaction: '🖥️',
