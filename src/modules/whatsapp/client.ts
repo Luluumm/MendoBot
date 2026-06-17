@@ -163,7 +163,6 @@ wwebClient.on('ready', () => {
         clientStarted = true;
     } else { return; }
 
-    console.clear();
     botLog('MendoBot is ready to go!');
 
     const startTime = Date.now();
