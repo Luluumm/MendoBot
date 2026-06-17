@@ -254,7 +254,7 @@ createCommand(['metro', 'metrotranvia', 'metrotranvía', 'estacion', 'estación'
             .join(' ');
 
         await sendResponse(
-            `⏱️ *Bot's uptime:* ${formatted}`,
+            `*Bot's uptime:*⏱️ ${formatted}`,
             message,
             {
                 reaction: '⏱️',
