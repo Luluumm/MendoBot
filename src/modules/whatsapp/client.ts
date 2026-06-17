@@ -264,6 +264,7 @@ wwebClient.on('ready', () => {
 
         const tripSession = getTripSession(from);
         if (tripSession && tripSession.state === "awaiting_destination" && message.type === MessageTypes.TEXT) {
+            if (Date.now() < tripSession.readyAt) return;
             const dest = resolveDestination(message.body);
             if (!dest) {
                 await wwebClient.sendMessage(from,
