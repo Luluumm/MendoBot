@@ -23,16 +23,16 @@ export async function sendStartupNotification() {
     const tunnel =
         await getNgrokTunnel()
         ?? 'Tunnel not available';
-
+ 
     await sendAdminMessage(
-`🟢 MendoBot Online
+`🟢 *MendoBot Online* 🟢
 
-🏷️ Device: ${info.hostname}
-🐧 OS: ${info.osName}
-🌡️ CPU: ${info.cpuTemp}°C
-⏱️ Uptime: ${info.uptimeText}
+> 🏷️ Device: ${info.hostname}
+> 🐧 OS: ${info.osName}
+> 🌡️ CPU: ${info.cpuTemp}°C
+> ⏱️ Uptime: ${info.uptimeText}
 
-🔐 SSH:
-${tunnel}`
+> 🔐 SSH:
+*${tunnel}*`
     );
 }

@@ -4,6 +4,9 @@ import { getMetroArrivals, getNextStopArrival, getStopArrivals, normalizeStopCod
 import { getSavedStopAlias, listSavedStopAliases, saveStopAlias } from "../mendotran/savedStops.js";
 import { getTimeString } from "../../utils/getTimeString.js";
 import { wwebClient } from "../whatsapp/client.js";
+import { sendReactionResponse } from "./sendResponses.js";
+import { isAdmin } from "./admin.js";
+import { createTripSession } from "../../services/tripSessions.js";
 const os = require('os');
 const { exec } = require('child_process');
 function getMessageOwner(message: any): string {
@@ -26,9 +29,13 @@ function parseBusAndStop(args: any[]): { bus: string; stop: string } {
 }
 
 createCommand(['ping'], {
+    options: {
+        adminOnly: true,
+    },
     info: {
         name: 'Ping',
         description: 'Ping-pong! 🏓',
+
     }
 })
     .setCallback(async (args, message) => {
@@ -39,6 +46,9 @@ createCommand(['ping'], {
     .closeCommand();
 
 createCommand(['pong'], {
+    options: {
+        adminOnly: true,
+    },
     info: {
         name: 'Pong',
         description: 'Ping-pong! 🏓',
@@ -225,11 +235,23 @@ createCommand(['metro', 'metrotranvia', 'metrotranvía', 'estacion', 'estación'
     })
     .closeCommand();
 
-
-
-
-
-
+createCommand(['voy', 'trip', 'viaje', 'ir'], {
+    options: {},
+    info: {
+        name: 'Planificar viaje',
+        description: 'Inicia un planificador de viaje conversacional. Te pedirá tu ubicación y destino.',
+    }
+})
+    .setCallback(async (args, message) => {
+        const sender = message.fromMe ? message.to : message.from;
+        createTripSession(sender);
+        await sendResponse(
+            "Perfecto. Enviame tu ubicación para saber dónde estás.",
+            message,
+            { reaction: "📍" }
+        );
+    })
+    .closeCommand();
 
 createCommand(['uptime', 'up', 'status', '🖥️'], {
     options: {
