@@ -246,7 +246,7 @@ createCommand(['voy', 'trip', 'viaje', 'ir'], {
         const sender = message.fromMe ? message.to : message.from;
         createTripSession(sender);
         await sendResponse(
-            "Perfecto. Enviame tu ubicación para saber dónde estás.",
+            "🚌 *Planificador de viajes* 🚌\n\nPerfecto. Enviame tu ubicación para saber dónde estás.",
             message,
             { reaction: "📍" }
         );

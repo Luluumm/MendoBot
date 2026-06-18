@@ -235,7 +235,7 @@ wwebClient.on('ready', () => {
             if (session && session.state === "awaiting_location") {
                 setTripOrigin(from, lat, lng);
                 await wwebClient.sendMessage(from,
-                    "¿A dónde querés ir?",
+                    "📍 *Listo!* Ya sé dónde estás.\n\n¿A dónde querés ir? Compartime la ubicación del destino.",
                     { quotedMessageId: message.id._serialized }
                 );
                 return;
@@ -257,7 +257,7 @@ wwebClient.on('ready', () => {
                     const bestTrip = response.plan[0];
                     if (!bestTrip) {
                         await wwebClient.sendMessage(from,
-                            "No encontré un recorrido disponible.",
+                            "😕 No encontré un recorrido disponible entre esas ubicaciones.",
                             { quotedMessageId: message.id._serialized }
                         );
                         return;
@@ -267,9 +267,10 @@ wwebClient.on('ready', () => {
                         `📍 *Destino:* ubicación compartida\n\n${formatted}`,
                         { quotedMessageId: message.id._serialized, linkPreview: false }
                     );
+                    await message.react('✅');
                 } catch (error) {
                     await wwebClient.sendMessage(from,
-                        "⚠️ No pude planificar el viaje. Probá de nuevo.",
+                        "⚠️ *Error* No pude planificar el viaje. Probá de nuevo más tarde.",
                         { quotedMessageId: message.id._serialized }
                     );
                 } finally {
@@ -305,7 +306,7 @@ wwebClient.on('ready', () => {
         if (pendingSession?.state === "awaiting_destination" && message.type === MessageTypes.TEXT) {
             if (Date.now() < pendingSession.readyAt) return;
             await wwebClient.sendMessage(from,
-                "Compartí la ubicación del destino para poder planificar el viaje.",
+                "📍 Necesito que compartas la *ubicación del destino* para poder planificar el viaje.",
                 { quotedMessageId: message.id._serialized }
             );
             return;
