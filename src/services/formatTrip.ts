@@ -37,13 +37,13 @@ export function formatTrip(
             const board = leg.instructions?.find(i => i.text.startsWith("Toma"));
             const leave = leg.instructions?.find(i => i.text.startsWith("Desciende"));
 
-            lines.push(`>  🚌 *Línea ${leg.service.code}*`);
+            lines.push(`>  *🚌 Línea ${leg.service.code}*`);
 
             if (board) {
-                lines.push(`>   ➡️ ${board.text}`);
+                lines.push(`>  ➡️ ${board.text}`);
             }
             if (leave) {
-                lines.push(`>   📍 ${leave.text}`);
+                lines.push(`>  📍 ${leave.text}`);
             }
         }
     }
