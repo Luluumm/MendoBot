@@ -305,11 +305,14 @@ wwebClient.on('ready', () => {
         const pendingSession = getTripSession(from);
         if (pendingSession?.state === "awaiting_destination" && message.type === MessageTypes.TEXT) {
             if (Date.now() < pendingSession.readyAt) return;
-            await wwebClient.sendMessage(from,
-                "📍 Necesito que compartas la *ubicación del destino* para poder planificar el viaje.",
-                { quotedMessageId: message.id._serialized }
-            );
-            return;
+            if (!pendingSession.reminded) {
+                pendingSession.reminded = true;
+                await wwebClient.sendMessage(from,
+                    "📍 Necesito que compartas la *ubicación del destino* para poder planificar el viaje.",
+                    { quotedMessageId: message.id._serialized }
+                );
+                return;
+            }
         }
 
         if (message.body.indexOf(commandsSettings.commandPrefix) === 0 && typeof message.body === 'string' && message.type === MessageTypes.TEXT) {

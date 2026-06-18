@@ -5,12 +5,13 @@ export interface TripSession {
     originLat?: number;
     originLng?: number;
     readyAt: number;
+    reminded: boolean;
 }
 
 const sessions = new Map<string, TripSession>();
 
 export function createTripSession(userId: string) {
-    sessions.set(userId, { state: "awaiting_location", readyAt: 0 });
+    sessions.set(userId, { state: "awaiting_location", readyAt: 0, reminded: false });
 }
 
 export function setTripOrigin(userId: string, lat: number, lng: number) {
@@ -20,6 +21,7 @@ export function setTripOrigin(userId: string, lat: number, lng: number) {
     session.originLng = lng;
     session.state = "awaiting_destination";
     session.readyAt = Date.now() + 2000;
+    session.reminded = false;
 }
 
 export function getTripSession(userId: string) {
