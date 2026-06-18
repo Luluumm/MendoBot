@@ -29,7 +29,7 @@ export function formatTrip(
             const instrText = leg.instructions?.[0]?.text ?? "";
             const dist = parseWalkDistance(instrText);
             totalWalk += parseInt(dist) || 0;
-            lines.push(`>🚶 Caminá ${dist || "unos metros"}`);
+            lines.push(`> 🚶 Caminá ${dist || "unos metros"}`);
             continue;
         }
 
@@ -37,7 +37,7 @@ export function formatTrip(
             const board = leg.instructions?.find(i => i.text.startsWith("Toma"));
             const leave = leg.instructions?.find(i => i.text.startsWith("Desciende"));
 
-            lines.push(`>🚌 *Línea ${leg.service.code}*`);
+            lines.push(`>  🚌 *Línea ${leg.service.code}*`);
 
             if (board) {
                 lines.push(`>   ➡️ ${board.text}`);
@@ -53,10 +53,10 @@ export function formatTrip(
     result.push("");
 
     if (totalWalk > 0) {
-        result.push(`>🚶 Caminata total: ~${totalWalk} m`);
+        result.push(`> 🚶 Caminata total: ~${totalWalk} m`);
     }
     if (totalDuration > 0) {
-        result.push(`>⏱️ Duración: ${formatDuration(totalDuration)}`);
+        result.push(`> ⏱️ Duración: ${formatDuration(totalDuration)}`);
     }
     result.push("");
 
