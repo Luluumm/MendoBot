@@ -1,5 +1,5 @@
 import { LocalAuth, Client, MessageTypes, Message } from 'whatsapp-web.js';
-import { existsSync, readdirSync } from 'fs';
+import { existsSync, readdirSync, statSync } from 'fs';
 import { homedir } from 'os';
 import { join } from 'path';
 import * as qrcode from 'qrcode-terminal';
@@ -29,25 +29,29 @@ function getPuppeteerCachedChromePath(): string | undefined {
     return cacheDirectories.at(-1);
 }
 
+function isExecutableFile(path: string | undefined): path is string {
+    return path !== undefined && existsSync(path) && statSync(path).isFile();
+}
+
 function getBrowserExecutablePath(): string {
     const browserPaths = [
         process.env.PUPPETEER_EXECUTABLE_PATH,
         process.env.CHROME_PATH,
-        chromium.path,
+        process.platform === 'linux' ? '/usr/bin/chromium' : undefined,
+        process.platform === 'linux' ? '/usr/bin/chromium-browser' : undefined,
+        process.platform === 'linux' ? '/usr/bin/google-chrome' : undefined,
         process.platform === 'win32' ? join(process.env.PROGRAMFILES || '', 'Google', 'Chrome', 'Application', 'chrome.exe') : undefined,
         process.platform === 'win32' ? join(process.env['PROGRAMFILES(X86)'] || '', 'Google', 'Chrome', 'Application', 'chrome.exe') : undefined,
         process.platform === 'win32' ? join(process.env.LOCALAPPDATA || '', 'Google', 'Chrome', 'Application', 'chrome.exe') : undefined,
         process.platform === 'win32' ? join(process.env.PROGRAMFILES || '', 'Microsoft', 'Edge', 'Application', 'msedge.exe') : undefined,
         process.platform === 'win32' ? join(process.env['PROGRAMFILES(X86)'] || '', 'Microsoft', 'Edge', 'Application', 'msedge.exe') : undefined,
-        process.platform === 'linux' ? '/usr/bin/chromium' : undefined,
-        process.platform === 'linux' ? '/usr/bin/chromium-browser' : undefined,
-        process.platform === 'linux' ? '/usr/bin/google-chrome' : undefined,
+        chromium.path,
         getPuppeteerCachedChromePath(),
     ];
 
-    const browserPath = browserPaths.find((path) => path !== undefined && existsSync(path));
+    const browserPath = browserPaths.find(isExecutableFile);
     if (browserPath === undefined) {
-        throw new Error('No Chrome/Chromium executable was found. Install Chrome, or run `npx @puppeteer/browsers install chrome` and set PUPPETEER_EXECUTABLE_PATH if needed.');
+        throw new Error('No Chrome/Chromium executable was found. Install Chrome, or set PUPPETEER_EXECUTABLE_PATH to its full path.');
     }
 
     return browserPath;
@@ -66,8 +70,7 @@ export const wwebClient = new Client({
         dataPath: `${whatsappSettings.wwebjsCache}/.wwebjs_auth`,
     }),
     puppeteer: {
-        // Force system Chromium instead of bundled one
-        executablePath: '/usr/bin/chromium-browser', // or '/usr/bin/chromium' depending on your distro
+        executablePath,
         headless: true,
         args: [
             '--no-sandbox',
@@ -88,9 +91,6 @@ export const wwebClient = new Client({
             '--disable-dinosaur-easter-egg',
             '--disable-accelerated-2d-canvas',
             '--disable-rtc-smoothness-algorithm',
-            '--dns-over-https=https://cloudflare-dns.com/dns-query',
-            '--ignore-certificate-errors',
-            '--host-resolver-rules=MAP web.whatsapp.com 31.13.94.52',
             '--ignore-certificate-errors',
         ],
     },
@@ -321,4 +321,9 @@ wwebClient.on('ready', () => {
     });
 });
 
-export function startWhatsAppWebClient(): void { wwebClient.initialize(); }
+export function startWhatsAppWebClient(): void {
+    void wwebClient.initialize().catch((error: unknown) => {
+        botLogError('No se pudo inicializar WhatsApp Web.', error);
+        process.exitCode = 1;
+    });
+}
